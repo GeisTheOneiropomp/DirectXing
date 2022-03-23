@@ -29,6 +29,7 @@ struct VertexColor
 struct ObjectConstants
 {
     XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
+    float time;
 };
 
 class BoxApp : public D3DApp
@@ -173,6 +174,7 @@ void BoxApp::Update(const GameTimer& gt)
 	// Update the constant buffer with the latest worldViewProj matrix.
 	ObjectConstants objConstants;
     XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
+    objConstants.time = gt.TotalTime();
     mObjectCB->CopyData(0, objConstants);
 }
 
@@ -301,6 +303,7 @@ void BoxApp::BuildConstantBuffers()
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
+    // TODO here
 	D3D12_GPU_VIRTUAL_ADDRESS cbAddress = mObjectCB->Resource()->GetGPUVirtualAddress();
     // Offset to the ith object constant buffer in the buffer.
     int boxCBufIndex = 0;
