@@ -13,6 +13,7 @@
 #include "../Common/UploadBuffer.h"
 #include "FrameResource.h"
 #include "RenderItem.h"
+#include "../Common/Camera.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -56,7 +57,6 @@ private:
     void BuildShapeGeometry();
     void BuildPSO();
 
-    void UpdateCamera(const GameTimer& gt);
     void UpdateObjectCBs(const GameTimer& gt);
     void UpdateMainPassCB(const GameTimer& gt);
 
@@ -88,10 +88,6 @@ private:
 
     ComPtr<ID3D12PipelineState> mPSO = nullptr;
 
-    XMFLOAT4X4 mWorld = MathHelper::Identity4x4();
-    XMFLOAT4X4 mView = MathHelper::Identity4x4();
-    XMFLOAT4X4 mProj = MathHelper::Identity4x4();
-
     UINT mPassCbvOffset = 0;
 
     float mTheta = 1.5f * XM_PI;
@@ -101,5 +97,7 @@ private:
 
     POINT mLastMousePos;
     bool mIsWireframe = false;
+
+    Camera mCamera;
 
 }; 
