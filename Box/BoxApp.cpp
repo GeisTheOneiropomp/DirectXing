@@ -566,18 +566,18 @@ void BoxApp::BuildRenderItems() {
     mAllRitems.push_back(std::move(gridRitem));
 
     UINT objCBIndex = 2;
-    for (int i = 0; i < 5; ++i)
+    for (int columnIndex = 0; columnIndex < 5; ++columnIndex)
     {
         auto leftCylRitem = std::make_unique<RenderItem>();
         auto rightCylRitem = std::make_unique<RenderItem>();
         auto leftSphereRitem = std::make_unique<RenderItem>();
         auto rightSphereRitem = std::make_unique<RenderItem>();
 
-        XMMATRIX leftCylWorld = XMMatrixTranslation(-5.0f, 1.5f, -10.0f + i * 5.0f);
-        XMMATRIX rightCylWorld = XMMatrixTranslation(+5.0f, 1.5f, -10.0f + i * 5.0f);
+        XMMATRIX leftCylWorld = XMMatrixTranslation(-5.0f, 1.5f, -10.0f + columnIndex * 5.0f);
+        XMMATRIX rightCylWorld = XMMatrixTranslation(+5.0f, 1.5f, -10.0f + columnIndex * 5.0f);
 
-        XMMATRIX leftSphereWorld = XMMatrixTranslation(-5.0f, 3.5f, -10.0f + i * 5.0f);
-        XMMATRIX rightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i * 5.0f);
+        XMMATRIX leftSphereWorld = XMMatrixTranslation(-5.0f, 3.5f, -10.0f + columnIndex * 5.0f);
+        XMMATRIX rightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + columnIndex * 5.0f);
 
         XMStoreFloat4x4(&leftCylRitem->World, rightCylWorld);
         leftCylRitem->ObjCBIndex = objCBIndex++;
