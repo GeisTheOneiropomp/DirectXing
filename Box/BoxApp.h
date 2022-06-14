@@ -50,15 +50,16 @@ private:
 
     void OnKeyboardInput(const GameTimer& gt);
 
-    void BuildDescriptorHeaps();
-    void BuildConstantBufferViews();
     void BuildRootSignature();
     void BuildShadersAndInputLayout();
     void BuildShapeGeometry();
     void BuildPSO();
+    void AnimateMaterials(const GameTimer& gt);
+    void BuildMaterials();
 
     void UpdateObjectCBs(const GameTimer& gt);
     void UpdateMainPassCB(const GameTimer& gt);
+    void UpdateMaterialCBs(const GameTimer& gt);
 
     void BuildRenderItems();
 
@@ -75,13 +76,15 @@ private:
     FrameResource* mCurrFrameResource = nullptr;
     int mCurrFrameResourceIndex = 0;
 
-    std::unique_ptr<UploadBuffer<ObjectConstants>> mObjectCB = nullptr;
+    UINT mCbvSrvDescriptorSize = 0;
+
     std::vector<std::unique_ptr<RenderItem>> mAllRitems;
     std::vector<RenderItem*> mOpaqueRitems;
     PassConstants mMainPassCB;
 
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
-
+    std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;
+    std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
     std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
 
     std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;

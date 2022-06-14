@@ -7,6 +7,7 @@ extern const int gNumFrameResources;
 
 class Material
 {
+public:
     // Unique material name for lookup.
     std::string Name;
 

@@ -14,6 +14,7 @@ struct RenderItem
     // relative to the world space, which defines the position, orientation,
     // and scale of the object in the world.
     XMFLOAT4X4 World = MathHelper::Identity4x4();
+    XMFLOAT4X4 TexTransform = MathHelper::Identity4x4();
 
     // Dirty flag indicating the object data has changed and we need to update the constant buffer.
     // Because we have an object cbuffer for each FrameResource, we have to apply the
@@ -25,6 +26,7 @@ struct RenderItem
     UINT ObjCBIndex = -1;
 
     MeshGeometry* Geo = nullptr;
+    Material* Mat = nullptr;
 
     // Primitive topology.
     D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
