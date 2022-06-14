@@ -18,42 +18,54 @@
     <ClCompile Include="BoxApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\d3dApp.cpp">
+    <ClCompile Include="..\Utilities\d3dApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\d3dUtil.cpp">
+    <ClCompile Include="..\Utilities\d3dUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\GameTimer.cpp">
+    <ClCompile Include="..\Utilities\GameTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\MathHelper.cpp">
+    <ClCompile Include="..\Utilities\MathHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FrameResource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\GeometryGenerator.cpp">
+    <ClCompile Include="..\Utilities\GeometryGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Common\Camera.cpp">
+    <ClCompile Include="..\Utilities\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utilities\Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utilities\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utilities\Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utilities\MeshGeometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Common\d3dApp.h">
+    <ClInclude Include="..\Utilities\d3dApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\d3dUtil.h">
+    <ClInclude Include="..\Utilities\d3dUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\GameTimer.h">
+    <ClInclude Include="..\Utilities\GameTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\MathHelper.h">
+    <ClInclude Include="..\Utilities\MathHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\UploadBuffer.h">
+    <ClInclude Include="..\Utilities\UploadBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FrameResource.h">
@@ -65,7 +77,7 @@
     <ClInclude Include="RenderItem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\GeometryGenerator.h">
+    <ClInclude Include="..\Utilities\GeometryGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ObjectConstants.h">
@@ -77,7 +89,25 @@
     <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Common\Camera.h">
+    <ClInclude Include="..\Utilities\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\MaterialConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\Submesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\MeshGeometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Common/MathHelper.h"
+#include "../Utilities/MathHelper.h"
 
 struct PassConstants
 {

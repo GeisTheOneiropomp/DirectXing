@@ -1,5 +1,5 @@
 #include "BoxApp.h"
-#include "../Common/GeometryGenerator.h"
+#include "../Utilities/GeometryGenerator.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 				   PSTR cmdLine, int showCmd)
@@ -353,22 +353,22 @@ void BoxApp::BuildShapeGeometry()
     // Define the SubmeshGeometry that cover different 
     // regions of the vertex/index buffers.
 
-    SubmeshGeometry boxSubmesh;
+    Submesh boxSubmesh;
     boxSubmesh.IndexCount = (UINT)box.Indices32.size();
     boxSubmesh.StartIndexLocation = boxIndexOffset;
     boxSubmesh.BaseVertexLocation = boxVertexOffset;
 
-    SubmeshGeometry gridSubmesh;
+    Submesh gridSubmesh;
     gridSubmesh.IndexCount = (UINT)grid.Indices32.size();
     gridSubmesh.StartIndexLocation = gridIndexOffset;
     gridSubmesh.BaseVertexLocation = gridVertexOffset;
 
-    SubmeshGeometry sphereSubmesh;
+    Submesh sphereSubmesh;
     sphereSubmesh.IndexCount = (UINT)sphere.Indices32.size();
     sphereSubmesh.StartIndexLocation = sphereIndexOffset;
     sphereSubmesh.BaseVertexLocation = sphereVertexOffset;
 
-    SubmeshGeometry cylinderSubmesh;
+    Submesh cylinderSubmesh;
     cylinderSubmesh.IndexCount = (UINT)cylinder.Indices32.size();
     cylinderSubmesh.StartIndexLocation = cylinderIndexOffset;
     cylinderSubmesh.BaseVertexLocation = cylinderVertexOffset;

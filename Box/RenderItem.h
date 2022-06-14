@@ -1,6 +1,6 @@
 #pragma once
-#include "../Common/MathHelper.h"
-#include "../Common/d3dUtil.h"
+#include "../Utilities/MathHelper.h"
+#include "../Utilities/d3dUtil.h"
 using namespace DirectX;
 const int gNumFrameResources = 3;
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../Common/d3dUtil.h"
-#include "../Common/MathHelper.h"
-#include "../Common/UploadBuffer.h"
+#include "../Utilities/d3dUtil.h"
+#include "../Utilities/MathHelper.h"
+#include "../Utilities/UploadBuffer.h"
 #include "ObjectConstants.h"
 #include "PassConstants.h"
 #include "Vertex.h"
