@@ -14,6 +14,7 @@
 #include "FrameResource.h"
 #include "RenderItem.h"
 #include "../Utilities/Camera.h"
+#include "../Utilities/Samplers.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -56,7 +57,7 @@ private:
     void BuildPSO();
     void AnimateMaterials(const GameTimer& gt);
     void BuildMaterials();
-
+    void LoadTextures();
     void UpdateObjectCBs(const GameTimer& gt);
     void UpdateMainPassCB(const GameTimer& gt);
     void UpdateMaterialCBs(const GameTimer& gt);
@@ -65,13 +66,16 @@ private:
 
     void BuildFrameResources();
 
+    void BuildDescriptorHeaps();
+
     void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
 
 private:
 
     ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
-    ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
-    
+    ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
+    Samplers mSamplers;
+
     std::vector<std::unique_ptr<FrameResource>> mFrameResources;
     FrameResource* mCurrFrameResource = nullptr;
     int mCurrFrameResourceIndex = 0;

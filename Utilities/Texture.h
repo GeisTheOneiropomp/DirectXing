@@ -4,11 +4,18 @@
 #include <d3d12.h>
 class Texture
 {
-    // Unique material name for lookup.
-    std::string Name;
 
-    std::wstring Filename;
+private:
 
     Microsoft::WRL::ComPtr<ID3D12Resource> Resource = nullptr;
     Microsoft::WRL::ComPtr<ID3D12Resource> UploadHeap = nullptr;
+
+public:
+    Texture(std::string Name, std::wstring Filename);
+    Microsoft::WRL::ComPtr<ID3D12Resource> &GetResource();
+    Microsoft::WRL::ComPtr<ID3D12Resource> &GetUploadHeap();
+
+    std::string Name;
+    std::wstring Filename;
+
 };

@@ -143,6 +143,7 @@
     <ClCompile Include="..\Utilities\Camera.cpp" />
     <ClCompile Include="..\Utilities\d3dApp.cpp" />
     <ClCompile Include="..\Utilities\d3dUtil.cpp" />
+    <ClCompile Include="..\Utilities\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Utilities\GameTimer.cpp" />
     <ClCompile Include="..\Utilities\GeometryGenerator.cpp" />
     <ClCompile Include="..\Utilities\Light.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="..\Utilities\Camera.h" />
     <ClInclude Include="..\Utilities\d3dApp.h" />
     <ClInclude Include="..\Utilities\d3dUtil.h" />
+    <ClInclude Include="..\Utilities\DDSTextureLoader.h" />
     <ClInclude Include="..\Utilities\GameTimer.h" />
     <ClInclude Include="..\Utilities\GeometryGenerator.h" />
     <ClInclude Include="..\Utilities\Light.h" />
@@ -164,6 +166,7 @@
     <ClInclude Include="..\Utilities\MaterialConstants.h" />
     <ClInclude Include="..\Utilities\MathHelper.h" />
     <ClInclude Include="..\Utilities\MeshGeometry.h" />
+    <ClInclude Include="..\Utilities\Samplers.h" />
     <ClInclude Include="..\Utilities\Submesh.h" />
     <ClInclude Include="..\Utilities\Texture.h" />
     <ClInclude Include="..\Utilities\UploadBuffer.h" />
