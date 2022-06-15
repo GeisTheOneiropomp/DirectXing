@@ -119,5 +119,8 @@
     <ClInclude Include="..\Utilities\Samplers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Utilities\RenderLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

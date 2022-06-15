@@ -166,6 +166,7 @@
     <ClInclude Include="..\Utilities\MaterialConstants.h" />
     <ClInclude Include="..\Utilities\MathHelper.h" />
     <ClInclude Include="..\Utilities\MeshGeometry.h" />
+    <ClInclude Include="..\Utilities\RenderLayer.h" />
     <ClInclude Include="..\Utilities\Samplers.h" />
     <ClInclude Include="..\Utilities\Submesh.h" />
     <ClInclude Include="..\Utilities\Texture.h" />

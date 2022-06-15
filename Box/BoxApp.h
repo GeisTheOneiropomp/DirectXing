@@ -1,13 +1,3 @@
-//***************************************************************************************
-// BoxApp.cpp by Frank Luna (C) 2015 All Rights Reserved.
-//
-// Shows how to draw a box in Direct3D 12.
-//
-// Controls:
-//   Hold the left mouse button down and move the mouse to rotate.
-//   Hold the right mouse button down and move the mouse to zoom in and out.
-//***************************************************************************************
-
 #include "../Utilities/d3dApp.h"
 #include "../Utilities/MathHelper.h"
 #include "../Utilities/UploadBuffer.h"
@@ -15,6 +5,7 @@
 #include "RenderItem.h"
 #include "../Utilities/Camera.h"
 #include "../Utilities/Samplers.h"
+#include "../Utilities/RenderLayer.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -82,8 +73,10 @@ private:
 
     UINT mCbvSrvDescriptorSize = 0;
 
+
     std::vector<std::unique_ptr<RenderItem>> mAllRitems;
-    std::vector<RenderItem*> mOpaqueRitems;
+    std::vector<RenderItem*> mRitemLayer[(int)RenderLayer::Count];
+
     PassConstants mMainPassCB;
 
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
@@ -93,18 +86,18 @@ private:
 
     std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 
-    ComPtr<ID3D12PipelineState> mPSO = nullptr;
+    std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs;
 
     UINT mPassCbvOffset = 0;
 
     float mTheta = 1.5f * XM_PI;
     float mPhi = 0.2f * XM_PI;
     float mRadius = 15.0f;
-    XMFLOAT3 mEyePos = { 0.0f, 0.0f, 0.0f };
 
     POINT mLastMousePos;
     bool mIsWireframe = false;
 
     Camera mCamera;
+    UINT mSkyTexHeapIndex = 0;
 
 }; 
