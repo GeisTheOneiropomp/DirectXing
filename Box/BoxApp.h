@@ -6,6 +6,7 @@
 #include "../Utilities/Camera.h"
 #include "../Utilities/Samplers.h"
 #include "../Utilities/RenderLayer.h"
+#include "TextureLoader.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;

@@ -70,7 +70,6 @@ void BoxApp::OnResize()
 	D3DApp::OnResize();
 
     // The window resized, so update the aspect ratio and recompute the projection matrix.
-    XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f*MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
     mCamera.SetLens(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
 }
 
@@ -237,7 +236,7 @@ void BoxApp::BuildRootSignature()
     texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
 
     CD3DX12_DESCRIPTOR_RANGE texTable1;
-    texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 1, 0);
+    texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 1, 0);
 
     // Root parameter can be a table, root descriptor or root constants.
     CD3DX12_ROOT_PARAMETER slotRootParameter[5];
@@ -291,6 +290,7 @@ void BoxApp::BuildShadersAndInputLayout()
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
         { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+        { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
     };
 }
 
@@ -300,46 +300,41 @@ void BoxApp::BuildMaterials()
     bricks0->Name = "bricks0";
     bricks0->MatCBIndex = 0;
     bricks0->DiffuseSrvHeapIndex = 0;
-    bricks0->DiffuseAlbedo = XMFLOAT4(Colors::Aquamarine);
+    bricks0->NormalSrvHeapIndex = 1;
+    bricks0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     bricks0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
     bricks0->Roughness = 0.1f;
 
-    auto stone0 = std::make_unique<Material>();
-    stone0->Name = "stone0";
-    stone0->MatCBIndex = 1;
-    stone0->DiffuseSrvHeapIndex = 0;
-    stone0->DiffuseAlbedo = XMFLOAT4(Colors::LightSteelBlue);
-    stone0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-    stone0->Roughness = 0.3f;
-
     auto tile0 = std::make_unique<Material>();
     tile0->Name = "tile0";
-    tile0->MatCBIndex = 2;
-    tile0->DiffuseSrvHeapIndex = 0;
+    tile0->MatCBIndex = 5;
+    tile0->DiffuseSrvHeapIndex = 2;
+    tile0->NormalSrvHeapIndex = 3;
     tile0->DiffuseAlbedo = XMFLOAT4(Colors::LightGray);
     tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
     tile0->Roughness = 0.2f;
 
-    auto skullMat = std::make_unique<Material>();
-    skullMat->Name = "skullMat";
-    skullMat->MatCBIndex = 3;
-    skullMat->DiffuseSrvHeapIndex = 0;
-    skullMat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-    skullMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-    skullMat->Roughness = 0.3f;
+    auto mirror0 = std::make_unique<Material>();
+    mirror0->Name = "mirror0";
+    mirror0->MatCBIndex = 2;
+    mirror0->DiffuseSrvHeapIndex = 4;
+    mirror0->NormalSrvHeapIndex = 5;
+    mirror0->DiffuseAlbedo = XMFLOAT4(Colors::LightSteelBlue);
+    mirror0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+    mirror0->Roughness = 0.3f;
 
     auto sky = std::make_unique<Material>();
     sky->Name = "sky";
-    sky->MatCBIndex = 4;
-    sky->DiffuseSrvHeapIndex = 3;
+    sky->MatCBIndex = 3;
+    sky->DiffuseSrvHeapIndex = 6;
+    sky->NormalSrvHeapIndex = 7;
     sky->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     sky->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
     sky->Roughness = 1.0f;
 
     mMaterials["bricks0"] = std::move(bricks0);
-    mMaterials["stone0"] = std::move(stone0);
+    mMaterials["mirror0"] = std::move(mirror0);
     mMaterials["tile0"] = std::move(tile0);
-    mMaterials["skullMat"] = std::move(skullMat);
     mMaterials["sky"] = std::move(sky);
 
 }
@@ -411,14 +406,16 @@ void BoxApp::BuildShapeGeometry()
         vertices[k].Pos = box.Vertices[i].Position;
         vertices[k].Normal = box.Vertices[i].Normal;
         vertices[k].TexC = box.Vertices[i].TexC;
-    
+        vertices[k].TangentU = box.Vertices[i].TangentU;
+
     }
 
     for (size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
     {
         vertices[k].Pos = grid.Vertices[i].Position;
         vertices[k].Normal = grid.Vertices[i].Normal;
-        vertices[k].TexC = grid.Vertices[i].TexC;
+        vertices[k].TexC = grid.Vertices[i].TexC;		
+        vertices[k].TangentU = grid.Vertices[i].TangentU;
     }
 
     for (size_t i = 0; i < sphere.Vertices.size(); ++i, ++k)
@@ -426,6 +423,7 @@ void BoxApp::BuildShapeGeometry()
         vertices[k].Pos = sphere.Vertices[i].Position;
         vertices[k].Normal = sphere.Vertices[i].Normal;
         vertices[k].TexC = sphere.Vertices[i].TexC;
+        vertices[k].TangentU = grid.Vertices[i].TangentU;
     }
 
     for (size_t i = 0; i < cylinder.Vertices.size(); ++i, ++k)
@@ -433,6 +431,7 @@ void BoxApp::BuildShapeGeometry()
         vertices[k].Pos = cylinder.Vertices[i].Position;
         vertices[k].Normal = cylinder.Vertices[i].Normal;
         vertices[k].TexC = cylinder.Vertices[i].TexC;
+        vertices[k].TangentU = cylinder.Vertices[i].TangentU;
     }
 
     std::vector<std::uint16_t> indices;
@@ -474,18 +473,8 @@ void BoxApp::BuildShapeGeometry()
 
 void BoxApp::LoadTextures() {
 
-    //TODO load textures from a resource file
-    auto woodCrateTex = std::make_unique<Texture>("woodCrateTex", L"../Assets/WoodCrate01.dds");
-    ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-        mCommandList.Get(), woodCrateTex->Filename.c_str(),
-        woodCrateTex->GetResource(), woodCrateTex->GetUploadHeap()));
-    mTextures[woodCrateTex->Name] = std::move(woodCrateTex);
-
-    auto skyCubeTex = std::make_unique<Texture>("skyCubeMap", L"../Assets/grasscube1024.dds");
-    ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-        mCommandList.Get(), skyCubeTex->Filename.c_str(),
-        skyCubeTex->GetResource(), skyCubeTex->GetUploadHeap()));
-    mTextures[skyCubeTex->Name] = std::move(skyCubeTex);
+    TextureLoader loader;
+    loader.Load(md3dDevice, mCommandList, &mTextures);
 }
 
 void BoxApp::BuildPSO()
@@ -561,7 +550,7 @@ void BoxApp::BuildRenderItems() {
     auto boxRitem = std::make_unique<RenderItem>();
     XMStoreFloat4x4(&boxRitem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 0.5f, 0.0f));
     XMStoreFloat4x4(&boxRitem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-    boxRitem->ObjCBIndex = 0;
+    boxRitem->ObjCBIndex = 1;
     boxRitem->Mat = mMaterials["bricks0"].get();
     boxRitem->Geo = mGeometries["shapeGeo"].get();
     boxRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -574,8 +563,8 @@ void BoxApp::BuildRenderItems() {
     auto gridRitem = std::make_unique<RenderItem>();
     gridRitem->World = MathHelper::Identity4x4();
     XMStoreFloat4x4(&gridRitem->TexTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
-    gridRitem->ObjCBIndex = 1;
-    gridRitem->Mat = mMaterials["tile0"].get();
+    gridRitem->ObjCBIndex = 2;
+    gridRitem->Mat = mMaterials["mirror0"].get();
     gridRitem->Geo = mGeometries["shapeGeo"].get();
     gridRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     gridRitem->IndexCount = gridRitem->Geo->DrawArgs["grid"].IndexCount;
@@ -585,7 +574,7 @@ void BoxApp::BuildRenderItems() {
     mAllRitems.push_back(std::move(gridRitem));
     
     XMMATRIX brickTexTransform = XMMatrixScaling(1.0f, 1.0f, 1.0f);
-    UINT objCBIndex = 2;
+    UINT objCBIndex = 3;
     for (int columnIndex = 0; columnIndex < 5; ++columnIndex)
     {
         auto leftCylRitem = std::make_unique<RenderItem>();
@@ -622,7 +611,7 @@ void BoxApp::BuildRenderItems() {
         XMStoreFloat4x4(&leftSphereRitem->World, leftSphereWorld);
         leftSphereRitem->TexTransform = MathHelper::Identity4x4();
         leftSphereRitem->ObjCBIndex = objCBIndex++;
-        leftSphereRitem->Mat = mMaterials["stone0"].get();
+        leftSphereRitem->Mat = mMaterials["mirror0"].get();
         leftSphereRitem->Geo = mGeometries["shapeGeo"].get();
         leftSphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
         leftSphereRitem->IndexCount = leftSphereRitem->Geo->DrawArgs["sphere"].IndexCount;
@@ -632,7 +621,7 @@ void BoxApp::BuildRenderItems() {
         XMStoreFloat4x4(&rightSphereRitem->World, rightSphereWorld);
         rightSphereRitem->TexTransform = MathHelper::Identity4x4();
         rightSphereRitem->ObjCBIndex = objCBIndex++;
-        rightSphereRitem->Mat = mMaterials["stone0"].get();
+        rightSphereRitem->Mat = mMaterials["mirror0"].get();
         rightSphereRitem->Geo = mGeometries["shapeGeo"].get();
         rightSphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
         rightSphereRitem->IndexCount = rightSphereRitem->Geo->DrawArgs["sphere"].IndexCount;
@@ -661,28 +650,64 @@ void BoxApp::BuildFrameResources()
     }
 }
 
+//TODO this needs to be refactored too
 void BoxApp::BuildDescriptorHeaps() {
 
     D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-    srvHeapDesc.NumDescriptors = 3;
+    srvHeapDesc.NumDescriptors = 10;
     srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     ThrowIfFailed(md3dDevice->CreateDescriptorHeap( &srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)));
 
+    auto brickDiffuseTex = mTextures["bricksDiffuseMap"]->GetResource();
+    auto brickNormalTex = mTextures["bricksNormalMap"]->GetResource();
+    auto tileDiffuseMap = mTextures["tileDiffuseMap"]->GetResource();
+    auto tileNormalMap = mTextures["tileNormalMap"]->GetResource();
+    auto defaultDiffuseMap = mTextures["defaultDiffuseMap"]->GetResource();
+    auto defaultNormalMap = mTextures["defaultNormalMap"]->GetResource();
     auto skyTex = mTextures["skyCubeMap"]->GetResource();
+
     CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-    auto woodCrateTex = mTextures["woodCrateTex"]->GetResource();
+
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.Format = woodCrateTex->GetDesc().Format;
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MostDetailedMip = 0;
-    srvDesc.Texture2D.MipLevels = woodCrateTex->GetDesc().MipLevels;
     srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-    md3dDevice->CreateShaderResourceView(woodCrateTex.Get(), &srvDesc, hDescriptor);
 
+    srvDesc.Format = brickDiffuseTex->GetDesc().Format;
+    srvDesc.Texture2D.MipLevels = brickDiffuseTex->GetDesc().MipLevels;
+    md3dDevice->CreateShaderResourceView(brickDiffuseTex.Get(), &srvDesc, hDescriptor);
     hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+    srvDesc.Format = brickNormalTex->GetDesc().Format;
+    srvDesc.Texture2D.MipLevels = brickNormalTex->GetDesc().MipLevels;
+    md3dDevice->CreateShaderResourceView(brickNormalTex.Get(), &srvDesc, hDescriptor);
+    hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+    srvDesc.Format = tileDiffuseMap->GetDesc().Format;
+    srvDesc.Texture2D.MipLevels = tileDiffuseMap->GetDesc().MipLevels;
+    md3dDevice->CreateShaderResourceView(tileDiffuseMap.Get(), &srvDesc, hDescriptor);
+    hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+    srvDesc.Format = tileNormalMap->GetDesc().Format;
+    srvDesc.Texture2D.MipLevels = tileNormalMap->GetDesc().MipLevels;
+    md3dDevice->CreateShaderResourceView(tileNormalMap.Get(), &srvDesc, hDescriptor);
+    hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+    srvDesc.Format = defaultDiffuseMap->GetDesc().Format;
+    srvDesc.Texture2D.MipLevels = defaultDiffuseMap->GetDesc().MipLevels;
+    md3dDevice->CreateShaderResourceView(defaultDiffuseMap.Get(), &srvDesc, hDescriptor);
+    hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+    srvDesc.Format = defaultNormalMap->GetDesc().Format;
+    srvDesc.Texture2D.MipLevels = defaultNormalMap->GetDesc().MipLevels;
+    md3dDevice->CreateShaderResourceView(defaultNormalMap.Get(), &srvDesc, hDescriptor);
+    hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+    // next descriptor
+
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
     srvDesc.TextureCube.MostDetailedMip = 0;
     srvDesc.TextureCube.MipLevels = skyTex->GetDesc().MipLevels;
@@ -690,7 +715,7 @@ void BoxApp::BuildDescriptorHeaps() {
     srvDesc.Format = skyTex->GetDesc().Format;
     md3dDevice->CreateShaderResourceView(skyTex.Get(), &srvDesc, hDescriptor);
 
-    mSkyTexHeapIndex = 1;
+    mSkyTexHeapIndex = 6;
 }
 
 void BoxApp::UpdateObjectCBs(const GameTimer& gt)
@@ -736,6 +761,7 @@ void BoxApp::UpdateMaterialCBs(const GameTimer& gt)
             matConstants.Roughness = mat->Roughness;
             XMStoreFloat4x4(&matConstants.MatTransform, XMMatrixTranspose(matTransform));
             matConstants.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
+            matConstants.NormalMapIndex = mat->NormalSrvHeapIndex;
 
             currMaterialCB->CopyData(mat->MatCBIndex, matConstants);
 

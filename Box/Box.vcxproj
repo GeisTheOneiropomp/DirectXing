@@ -153,6 +153,7 @@
     <ClCompile Include="..\Utilities\Texture.cpp" />
     <ClCompile Include="BoxApp.cpp" />
     <ClCompile Include="FrameResource.cpp" />
+    <ClCompile Include="TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Utilities\Camera.h" />
@@ -176,6 +177,7 @@
     <ClInclude Include="ObjectConstants.h" />
     <ClInclude Include="PassConstants.h" />
     <ClInclude Include="RenderItem.h" />
+    <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
