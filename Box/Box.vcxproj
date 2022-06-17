@@ -152,7 +152,12 @@
     <ClCompile Include="..\Utilities\MeshGeometry.cpp" />
     <ClCompile Include="..\Utilities\Texture.cpp" />
     <ClCompile Include="BoxApp.cpp" />
+    <ClCompile Include="DescriptorHeapBuilder.cpp" />
     <ClCompile Include="FrameResource.cpp" />
+    <ClCompile Include="GeometryLoader.cpp" />
+    <ClCompile Include="MaterialLoader.cpp" />
+    <ClCompile Include="PSOBuilder.cpp" />
+    <ClCompile Include="RenderItemBuilder.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -173,10 +178,16 @@
     <ClInclude Include="..\Utilities\Texture.h" />
     <ClInclude Include="..\Utilities\UploadBuffer.h" />
     <ClInclude Include="BoxApp.h" />
+    <ClInclude Include="ConfigConstants.h" />
+    <ClInclude Include="DescriptorHeapBuilder.h" />
     <ClInclude Include="FrameResource.h" />
+    <ClInclude Include="GeometryLoader.h" />
+    <ClInclude Include="MaterialLoader.h" />
     <ClInclude Include="ObjectConstants.h" />
     <ClInclude Include="PassConstants.h" />
+    <ClInclude Include="PSOBuilder.h" />
     <ClInclude Include="RenderItem.h" />
+    <ClInclude Include="RenderItemBuilder.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>

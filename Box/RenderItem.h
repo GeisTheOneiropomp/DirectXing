@@ -1,8 +1,8 @@
 #pragma once
 #include "../Utilities/MathHelper.h"
 #include "../Utilities/d3dUtil.h"
+#include "ConfigConstants.h"
 using namespace DirectX;
-const int gNumFrameResources = 3;
 
 // Lightweight structure stores parameters to draw a shape.  This will
 // vary from app-to-app.
@@ -20,7 +20,7 @@ struct RenderItem
     // Because we have an object cbuffer for each FrameResource, we have to apply the
     // update to each FrameResource.  Thus, when we modify obect data we should set 
     // NumFramesDirty = gNumFrameResources so that each frame resource gets the update.
-    int NumFramesDirty = gNumFrameResources;
+    int NumFramesDirty = CONFIG_CONST_NUM_FRAMES;
 
     // Index into GPU constant buffer corresponding to the ObjectCB for this render item.
     UINT ObjCBIndex = -1;

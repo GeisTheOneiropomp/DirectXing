@@ -25,10 +25,10 @@ public:
     using uint16 = std::uint16_t;
     using uint32 = std::uint32_t;
 
-	struct Vertex
+	struct GeoVertex
 	{
-		Vertex(){}
-        Vertex(
+		GeoVertex(){}
+        GeoVertex(
             const DirectX::XMFLOAT3& p, 
             const DirectX::XMFLOAT3& n, 
             const DirectX::XMFLOAT3& t, 
@@ -37,7 +37,7 @@ public:
             Normal(n), 
             TangentU(t), 
             TexC(uv){}
-		Vertex(
+		GeoVertex(
 			float px, float py, float pz, 
 			float nx, float ny, float nz,
 			float tx, float ty, float tz,
@@ -55,7 +55,7 @@ public:
 
 	struct MeshData
 	{
-		std::vector<Vertex> Vertices;
+		std::vector<GeoVertex> Vertices;
         std::vector<uint32> Indices32;
 
         std::vector<uint16>& GetIndices16()
@@ -112,7 +112,7 @@ public:
 
 private:
 	void Subdivide(MeshData& meshData);
-    Vertex MidPoint(const Vertex& v0, const Vertex& v1);
+    GeoVertex MidPoint(const GeoVertex& v0, const GeoVertex& v1);
     void BuildCylinderTopCap(float bottomRadius, float topRadius, float height, uint32 sliceCount, uint32 stackCount, MeshData& meshData);
     void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, uint32 sliceCount, uint32 stackCount, MeshData& meshData);
 };

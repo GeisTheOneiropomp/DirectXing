@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Loaders">
+      <UniqueIdentifier>{e1f8f203-f6fb-4679-928b-0047bf70de3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Loaders">
+      <UniqueIdentifier>{8e882956-3d7e-4ac4-805d-e1a334520186}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Constants">
+      <UniqueIdentifier>{6e76c964-8bf4-4daf-953e-f8cf46e5883e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BoxApp.cpp">
@@ -51,11 +60,26 @@
     <ClCompile Include="..\Utilities\MeshGeometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utilities\DDSTextureLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TextureLoader.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utilities\DDSTextureLoader.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialLoader.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryLoader.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="PSOBuilder.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderItemBuilder.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="DescriptorHeapBuilder.cpp">
+      <Filter>Source Files\Loaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -74,9 +98,6 @@
     <ClInclude Include="..\Utilities\UploadBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FrameResource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BoxApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -86,12 +107,6 @@
     <ClInclude Include="..\Utilities\GeometryGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ObjectConstants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PassConstants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -99,9 +114,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Utilities\Material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utilities\MaterialConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Utilities\Submesh.h">
@@ -116,17 +128,47 @@
     <ClInclude Include="..\Utilities\MeshGeometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utilities\DDSTextureLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Utilities\Samplers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utilities\RenderLayer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TextureLoader.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\DDSTextureLoader.h">
+      <Filter>Header Files\Loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectConstants.h">
+      <Filter>Header Files\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="PassConstants.h">
+      <Filter>Header Files\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\MaterialConstants.h">
+      <Filter>Header Files\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\RenderLayer.h">
+      <Filter>Header Files\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameResource.h">
+      <Filter>Header Files\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialLoader.h">
+      <Filter>Header Files\Loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryLoader.h">
+      <Filter>Header Files\Loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="PSOBuilder.h">
+      <Filter>Header Files\Loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigConstants.h">
+      <Filter>Header Files\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderItemBuilder.h">
+      <Filter>Header Files\Loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="DescriptorHeapBuilder.h">
+      <Filter>Header Files\Loaders</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

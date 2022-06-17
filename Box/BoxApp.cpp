@@ -78,7 +78,7 @@ void BoxApp::Update(const GameTimer& gt)
     OnKeyboardInput(gt);
 
     // Cycle through the circular frame resource array.
-    mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % gNumFrameResources;
+    mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % CONFIG_CONST_NUM_FRAMES;
     mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
 
     // Has the GPU finished processing the commands of the current frame resource?
@@ -276,6 +276,8 @@ void BoxApp::BuildRootSignature()
 
 void BoxApp::BuildShadersAndInputLayout()
 {
+
+    //TODO::Put this elsewhere
     mShaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
     
     mShaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "PS", "ps_5_1");
@@ -284,7 +286,7 @@ void BoxApp::BuildShadersAndInputLayout()
     
     mShaders["skyPS"] = d3dUtil::CompileShader(L"Shaders\\Skybox.hlsl", nullptr, "PS", "ps_5_1");
 
-
+    //TODO: automate this
     mInputLayout =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -296,426 +298,47 @@ void BoxApp::BuildShadersAndInputLayout()
 
 void BoxApp::BuildMaterials()
 {
-    auto bricks0 = std::make_unique<Material>();
-    bricks0->Name = "bricks0";
-    bricks0->MatCBIndex = 0;
-    bricks0->DiffuseSrvHeapIndex = 0;
-    bricks0->NormalSrvHeapIndex = 1;
-    bricks0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-    bricks0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-    bricks0->Roughness = 0.1f;
-
-    auto tile0 = std::make_unique<Material>();
-    tile0->Name = "tile0";
-    tile0->MatCBIndex = 5;
-    tile0->DiffuseSrvHeapIndex = 2;
-    tile0->NormalSrvHeapIndex = 3;
-    tile0->DiffuseAlbedo = XMFLOAT4(Colors::LightGray);
-    tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-    tile0->Roughness = 0.2f;
-
-    auto mirror0 = std::make_unique<Material>();
-    mirror0->Name = "mirror0";
-    mirror0->MatCBIndex = 2;
-    mirror0->DiffuseSrvHeapIndex = 4;
-    mirror0->NormalSrvHeapIndex = 5;
-    mirror0->DiffuseAlbedo = XMFLOAT4(Colors::LightSteelBlue);
-    mirror0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-    mirror0->Roughness = 0.3f;
-
-    auto sky = std::make_unique<Material>();
-    sky->Name = "sky";
-    sky->MatCBIndex = 3;
-    sky->DiffuseSrvHeapIndex = 6;
-    sky->NormalSrvHeapIndex = 7;
-    sky->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-    sky->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
-    sky->Roughness = 1.0f;
-
-    mMaterials["bricks0"] = std::move(bricks0);
-    mMaterials["mirror0"] = std::move(mirror0);
-    mMaterials["tile0"] = std::move(tile0);
-    mMaterials["sky"] = std::move(sky);
-
+    MaterialLoader loader;
+    loader.Load(&mMaterials);
 }
 
 void BoxApp::BuildShapeGeometry()
 {
-    GeometryGenerator geoGen;
-    GeometryGenerator::MeshData box = geoGen.CreateBox(1.5f, 0.5f, 1.5f, 3);
-    GeometryGenerator::MeshData grid = geoGen.CreateGrid(20.0f, 30.0f, 60, 40);
-    GeometryGenerator::MeshData sphere = geoGen.CreateSphere(0.5f, 20, 20);
-    GeometryGenerator::MeshData cylinder = geoGen.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20);
-
-    //
-    // We are concatenating all the geometry into one big vertex/index buffer.  So
-    // define the regions in the buffer each submesh covers.
-    //
-
-    // Cache the vertex offsets to each object in the concatenated vertex buffer.
-    UINT boxVertexOffset = 0;
-    UINT gridVertexOffset = (UINT)box.Vertices.size();
-    UINT sphereVertexOffset = gridVertexOffset + (UINT)grid.Vertices.size();
-    UINT cylinderVertexOffset = sphereVertexOffset + (UINT)sphere.Vertices.size();
-
-    // Cache the starting index for each object in the concatenated index buffer.
-    UINT boxIndexOffset = 0;
-    UINT gridIndexOffset = (UINT)box.Indices32.size();
-    UINT sphereIndexOffset = gridIndexOffset + (UINT)grid.Indices32.size();
-    UINT cylinderIndexOffset = sphereIndexOffset + (UINT)sphere.Indices32.size();
-
-    // Define the SubmeshGeometry that cover different 
-    // regions of the vertex/index buffers.
-
-    Submesh boxSubmesh;
-    boxSubmesh.IndexCount = (UINT)box.Indices32.size();
-    boxSubmesh.StartIndexLocation = boxIndexOffset;
-    boxSubmesh.BaseVertexLocation = boxVertexOffset;
-
-    Submesh gridSubmesh;
-    gridSubmesh.IndexCount = (UINT)grid.Indices32.size();
-    gridSubmesh.StartIndexLocation = gridIndexOffset;
-    gridSubmesh.BaseVertexLocation = gridVertexOffset;
-
-    Submesh sphereSubmesh;
-    sphereSubmesh.IndexCount = (UINT)sphere.Indices32.size();
-    sphereSubmesh.StartIndexLocation = sphereIndexOffset;
-    sphereSubmesh.BaseVertexLocation = sphereVertexOffset;
-
-    Submesh cylinderSubmesh;
-    cylinderSubmesh.IndexCount = (UINT)cylinder.Indices32.size();
-    cylinderSubmesh.StartIndexLocation = cylinderIndexOffset;
-    cylinderSubmesh.BaseVertexLocation = cylinderVertexOffset;
-
-    //
-    // Extract the vertex elements we are interested in and pack the
-    // vertices of all the meshes into one vertex buffer.
-    //
-
-    auto totalVertexCount =
-        box.Vertices.size() +
-        grid.Vertices.size() +
-        sphere.Vertices.size() +
-        cylinder.Vertices.size();
-
-    std::vector<Vertex> vertices(totalVertexCount);
-
-    UINT k = 0;
-    for (size_t i = 0; i < box.Vertices.size(); ++i, ++k)
-    {
-        vertices[k].Pos = box.Vertices[i].Position;
-        vertices[k].Normal = box.Vertices[i].Normal;
-        vertices[k].TexC = box.Vertices[i].TexC;
-        vertices[k].TangentU = box.Vertices[i].TangentU;
-
-    }
-
-    for (size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
-    {
-        vertices[k].Pos = grid.Vertices[i].Position;
-        vertices[k].Normal = grid.Vertices[i].Normal;
-        vertices[k].TexC = grid.Vertices[i].TexC;		
-        vertices[k].TangentU = grid.Vertices[i].TangentU;
-    }
-
-    for (size_t i = 0; i < sphere.Vertices.size(); ++i, ++k)
-    {
-        vertices[k].Pos = sphere.Vertices[i].Position;
-        vertices[k].Normal = sphere.Vertices[i].Normal;
-        vertices[k].TexC = sphere.Vertices[i].TexC;
-        vertices[k].TangentU = grid.Vertices[i].TangentU;
-    }
-
-    for (size_t i = 0; i < cylinder.Vertices.size(); ++i, ++k)
-    {
-        vertices[k].Pos = cylinder.Vertices[i].Position;
-        vertices[k].Normal = cylinder.Vertices[i].Normal;
-        vertices[k].TexC = cylinder.Vertices[i].TexC;
-        vertices[k].TangentU = cylinder.Vertices[i].TangentU;
-    }
-
-    std::vector<std::uint16_t> indices;
-    indices.insert(indices.end(), std::begin(box.GetIndices16()), std::end(box.GetIndices16()));
-    indices.insert(indices.end(), std::begin(grid.GetIndices16()), std::end(grid.GetIndices16()));
-    indices.insert(indices.end(), std::begin(sphere.GetIndices16()), std::end(sphere.GetIndices16()));
-    indices.insert(indices.end(), std::begin(cylinder.GetIndices16()), std::end(cylinder.GetIndices16()));
-
-    const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-    const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-    auto geo = std::make_unique<MeshGeometry>();
-    geo->Name = "shapeGeo";
-
-    ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-    CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-    ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-    CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-    geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-        mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
-
-    geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-        mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-    geo->VertexByteStride = sizeof(Vertex);
-    geo->VertexBufferByteSize = vbByteSize;
-    geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-    geo->IndexBufferByteSize = ibByteSize;
-
-    geo->DrawArgs["box"] = boxSubmesh;
-    geo->DrawArgs["grid"] = gridSubmesh;
-    geo->DrawArgs["sphere"] = sphereSubmesh;
-    geo->DrawArgs["cylinder"] = cylinderSubmesh;
-
-    mGeometries[geo->Name] = std::move(geo);
+    GeometryLoader loader;
+    loader.Load(md3dDevice, mCommandList, &mGeometries);
 }
 
 void BoxApp::LoadTextures() {
-
     TextureLoader loader;
     loader.Load(md3dDevice, mCommandList, &mTextures);
 }
 
 void BoxApp::BuildPSO()
 {
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
-    ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-    psoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
-    psoDesc.pRootSignature = mRootSignature.Get();
-    psoDesc.VS = 
-	{ 
-        reinterpret_cast<BYTE*>(mShaders["standardVS"]->GetBufferPointer()),
-        mShaders["standardVS"]->GetBufferSize()
-	};
-    psoDesc.PS = 
-	{ 
-        reinterpret_cast<BYTE*>(mShaders["opaquePS"]->GetBufferPointer()),
-        mShaders["opaquePS"]->GetBufferSize()
-	};
-    psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psoDesc.SampleMask = UINT_MAX;
-    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psoDesc.NumRenderTargets = 1;
-    psoDesc.RTVFormats[0] = mBackBufferFormat;
-    psoDesc.SampleDesc.Count = m4xMsaaState ? 4 : 1;
-    psoDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
-    psoDesc.DSVFormat = mDepthStencilFormat;
-    ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
-
-    //
-    // PSO for sky.
-    //
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC skyPsoDesc = psoDesc;
-
-    // The camera is inside the sky sphere, so just turn off culling.
-    skyPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-
-    // Make sure the depth function is LESS_EQUAL and not just LESS.  
-    // Otherwise, the normalized depth values at z = 1 (NDC) will 
-    // fail the depth test if the depth buffer was cleared to 1.
-    skyPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-    skyPsoDesc.pRootSignature = mRootSignature.Get();
-    skyPsoDesc.VS =
-    {
-        reinterpret_cast<BYTE*>(mShaders["skyVS"]->GetBufferPointer()),
-        mShaders["skyVS"]->GetBufferSize()
-    };
-    skyPsoDesc.PS =
-    {
-        reinterpret_cast<BYTE*>(mShaders["skyPS"]->GetBufferPointer()),
-        mShaders["skyPS"]->GetBufferSize()
-    };
-    ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&mPSOs["sky"])));
+    PSOBuilder builder;
+    builder.Load(md3dDevice, mCommandList, &mPSOs, mInputLayout, mRootSignature, mShaders, mBackBufferFormat, m4xMsaaState, m4xMsaaQuality, mDepthStencilFormat);
 }
 
 void BoxApp::BuildRenderItems() {
 
-    auto skyRitem = std::make_unique<RenderItem>();
-    XMStoreFloat4x4(&skyRitem->World, XMMatrixScaling(5000.0f, 5000.0f, 5000.0f));
-    skyRitem->TexTransform = MathHelper::Identity4x4();
-    skyRitem->ObjCBIndex = 0;
-    skyRitem->Mat = mMaterials["sky"].get();
-    skyRitem->Geo = mGeometries["shapeGeo"].get();
-    skyRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-    skyRitem->IndexCount = skyRitem->Geo->DrawArgs["sphere"].IndexCount;
-    skyRitem->StartIndexLocation = skyRitem->Geo->DrawArgs["sphere"].StartIndexLocation;
-    skyRitem->BaseVertexLocation = skyRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
-
-    mRitemLayer[(int)RenderLayer::Sky].push_back(skyRitem.get());
-    mAllRitems.push_back(std::move(skyRitem));
-
-    auto boxRitem = std::make_unique<RenderItem>();
-    XMStoreFloat4x4(&boxRitem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 0.5f, 0.0f));
-    XMStoreFloat4x4(&boxRitem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-    boxRitem->ObjCBIndex = 1;
-    boxRitem->Mat = mMaterials["bricks0"].get();
-    boxRitem->Geo = mGeometries["shapeGeo"].get();
-    boxRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-    boxRitem->IndexCount = boxRitem->Geo->DrawArgs["box"].IndexCount;
-    boxRitem->StartIndexLocation = boxRitem->Geo->DrawArgs["box"].StartIndexLocation;
-    boxRitem->BaseVertexLocation = boxRitem->Geo->DrawArgs["box"].BaseVertexLocation;
-    mRitemLayer[(int)RenderLayer::Opaque].push_back(boxRitem.get());
-    mAllRitems.push_back(std::move(boxRitem));
-
-    auto gridRitem = std::make_unique<RenderItem>();
-    gridRitem->World = MathHelper::Identity4x4();
-    XMStoreFloat4x4(&gridRitem->TexTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
-    gridRitem->ObjCBIndex = 2;
-    gridRitem->Mat = mMaterials["mirror0"].get();
-    gridRitem->Geo = mGeometries["shapeGeo"].get();
-    gridRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-    gridRitem->IndexCount = gridRitem->Geo->DrawArgs["grid"].IndexCount;
-    gridRitem->StartIndexLocation = gridRitem->Geo->DrawArgs["grid"].StartIndexLocation;
-    gridRitem->BaseVertexLocation = gridRitem->Geo->DrawArgs["grid"].BaseVertexLocation;
-    mRitemLayer[(int)RenderLayer::Opaque].push_back(gridRitem.get());
-    mAllRitems.push_back(std::move(gridRitem));
-    
-    XMMATRIX brickTexTransform = XMMatrixScaling(1.0f, 1.0f, 1.0f);
-    UINT objCBIndex = 3;
-    for (int columnIndex = 0; columnIndex < 5; ++columnIndex)
-    {
-        auto leftCylRitem = std::make_unique<RenderItem>();
-        auto rightCylRitem = std::make_unique<RenderItem>();
-        auto leftSphereRitem = std::make_unique<RenderItem>();
-        auto rightSphereRitem = std::make_unique<RenderItem>();
-
-        XMMATRIX leftCylWorld = XMMatrixTranslation(-5.0f, 1.5f, -10.0f + columnIndex * 5.0f);
-        XMMATRIX rightCylWorld = XMMatrixTranslation(+5.0f, 1.5f, -10.0f + columnIndex * 5.0f);
-
-        XMMATRIX leftSphereWorld = XMMatrixTranslation(-5.0f, 3.5f, -10.0f + columnIndex * 5.0f);
-        XMMATRIX rightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + columnIndex * 5.0f);
-
-        XMStoreFloat4x4(&leftCylRitem->World, rightCylWorld);
-        XMStoreFloat4x4(&leftCylRitem->TexTransform, brickTexTransform);
-        leftCylRitem->ObjCBIndex = objCBIndex++;
-        leftCylRitem->Mat = mMaterials["bricks0"].get();
-        leftCylRitem->Geo = mGeometries["shapeGeo"].get();
-        leftCylRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-        leftCylRitem->IndexCount = leftCylRitem->Geo->DrawArgs["cylinder"].IndexCount;
-        leftCylRitem->StartIndexLocation = leftCylRitem->Geo->DrawArgs["cylinder"].StartIndexLocation;
-        leftCylRitem->BaseVertexLocation = leftCylRitem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
-
-        XMStoreFloat4x4(&rightCylRitem->World, leftCylWorld);
-        XMStoreFloat4x4(&rightCylRitem->TexTransform, brickTexTransform);
-        rightCylRitem->ObjCBIndex = objCBIndex++;
-        rightCylRitem->Mat = mMaterials["bricks0"].get();
-        rightCylRitem->Geo = mGeometries["shapeGeo"].get();
-        rightCylRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-        rightCylRitem->IndexCount = rightCylRitem->Geo->DrawArgs["cylinder"].IndexCount;
-        rightCylRitem->StartIndexLocation = rightCylRitem->Geo->DrawArgs["cylinder"].StartIndexLocation;
-        rightCylRitem->BaseVertexLocation = rightCylRitem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
-
-        XMStoreFloat4x4(&leftSphereRitem->World, leftSphereWorld);
-        leftSphereRitem->TexTransform = MathHelper::Identity4x4();
-        leftSphereRitem->ObjCBIndex = objCBIndex++;
-        leftSphereRitem->Mat = mMaterials["mirror0"].get();
-        leftSphereRitem->Geo = mGeometries["shapeGeo"].get();
-        leftSphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-        leftSphereRitem->IndexCount = leftSphereRitem->Geo->DrawArgs["sphere"].IndexCount;
-        leftSphereRitem->StartIndexLocation = leftSphereRitem->Geo->DrawArgs["sphere"].StartIndexLocation;
-        leftSphereRitem->BaseVertexLocation = leftSphereRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
-
-        XMStoreFloat4x4(&rightSphereRitem->World, rightSphereWorld);
-        rightSphereRitem->TexTransform = MathHelper::Identity4x4();
-        rightSphereRitem->ObjCBIndex = objCBIndex++;
-        rightSphereRitem->Mat = mMaterials["mirror0"].get();
-        rightSphereRitem->Geo = mGeometries["shapeGeo"].get();
-        rightSphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-        rightSphereRitem->IndexCount = rightSphereRitem->Geo->DrawArgs["sphere"].IndexCount;
-        rightSphereRitem->StartIndexLocation = rightSphereRitem->Geo->DrawArgs["sphere"].StartIndexLocation;
-        rightSphereRitem->BaseVertexLocation = rightSphereRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
-
-        mRitemLayer[(int)RenderLayer::Opaque].push_back(leftCylRitem.get());
-        mRitemLayer[(int)RenderLayer::Opaque].push_back(rightCylRitem.get());
-        mRitemLayer[(int)RenderLayer::Opaque].push_back(leftSphereRitem.get());
-        mRitemLayer[(int)RenderLayer::Opaque].push_back(rightSphereRitem.get());
-
-        mAllRitems.push_back(std::move(leftCylRitem));
-        mAllRitems.push_back(std::move(rightCylRitem));
-        mAllRitems.push_back(std::move(leftSphereRitem));
-        mAllRitems.push_back(std::move(rightSphereRitem));
-    }
-
+    RenderItemBuilder builder;
+    builder.Load(&mMaterials, &mGeometries, mRitemLayer, &mAllRitems);
 }
 
 void BoxApp::BuildFrameResources()
 {
-    for (int i = 0; i < gNumFrameResources; ++i)
+    for (int i = 0; i < CONFIG_CONST_NUM_FRAMES; ++i)
     {
         mFrameResources.push_back(std::make_unique<FrameResource>(md3dDevice.Get(),
             1, (UINT)mAllRitems.size(), (UINT) mMaterials.size() ));
     }
 }
 
-//TODO this needs to be refactored too
 void BoxApp::BuildDescriptorHeaps() {
 
-    D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-    srvHeapDesc.NumDescriptors = 10;
-    srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-    ThrowIfFailed(md3dDevice->CreateDescriptorHeap( &srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)));
+    DescriptorHeapBuilder builder;
+    builder.Load(md3dDevice, &mSrvDescriptorHeap, &mTextures, mCbvSrvDescriptorSize, &mSkyTexHeapIndex);
 
-    auto brickDiffuseTex = mTextures["bricksDiffuseMap"]->GetResource();
-    auto brickNormalTex = mTextures["bricksNormalMap"]->GetResource();
-    auto tileDiffuseMap = mTextures["tileDiffuseMap"]->GetResource();
-    auto tileNormalMap = mTextures["tileNormalMap"]->GetResource();
-    auto defaultDiffuseMap = mTextures["defaultDiffuseMap"]->GetResource();
-    auto defaultNormalMap = mTextures["defaultNormalMap"]->GetResource();
-    auto skyTex = mTextures["skyCubeMap"]->GetResource();
-
-    CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-
-
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MostDetailedMip = 0;
-    srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-
-    srvDesc.Format = brickDiffuseTex->GetDesc().Format;
-    srvDesc.Texture2D.MipLevels = brickDiffuseTex->GetDesc().MipLevels;
-    md3dDevice->CreateShaderResourceView(brickDiffuseTex.Get(), &srvDesc, hDescriptor);
-    hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-    srvDesc.Format = brickNormalTex->GetDesc().Format;
-    srvDesc.Texture2D.MipLevels = brickNormalTex->GetDesc().MipLevels;
-    md3dDevice->CreateShaderResourceView(brickNormalTex.Get(), &srvDesc, hDescriptor);
-    hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-    srvDesc.Format = tileDiffuseMap->GetDesc().Format;
-    srvDesc.Texture2D.MipLevels = tileDiffuseMap->GetDesc().MipLevels;
-    md3dDevice->CreateShaderResourceView(tileDiffuseMap.Get(), &srvDesc, hDescriptor);
-    hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-    srvDesc.Format = tileNormalMap->GetDesc().Format;
-    srvDesc.Texture2D.MipLevels = tileNormalMap->GetDesc().MipLevels;
-    md3dDevice->CreateShaderResourceView(tileNormalMap.Get(), &srvDesc, hDescriptor);
-    hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-    srvDesc.Format = defaultDiffuseMap->GetDesc().Format;
-    srvDesc.Texture2D.MipLevels = defaultDiffuseMap->GetDesc().MipLevels;
-    md3dDevice->CreateShaderResourceView(defaultDiffuseMap.Get(), &srvDesc, hDescriptor);
-    hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-    srvDesc.Format = defaultNormalMap->GetDesc().Format;
-    srvDesc.Texture2D.MipLevels = defaultNormalMap->GetDesc().MipLevels;
-    md3dDevice->CreateShaderResourceView(defaultNormalMap.Get(), &srvDesc, hDescriptor);
-    hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
-    // next descriptor
-
-    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-    srvDesc.TextureCube.MostDetailedMip = 0;
-    srvDesc.TextureCube.MipLevels = skyTex->GetDesc().MipLevels;
-    srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
-    srvDesc.Format = skyTex->GetDesc().Format;
-    md3dDevice->CreateShaderResourceView(skyTex.Get(), &srvDesc, hDescriptor);
-
-    mSkyTexHeapIndex = 6;
 }
 
 void BoxApp::UpdateObjectCBs(const GameTimer& gt)

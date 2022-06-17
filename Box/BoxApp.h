@@ -7,7 +7,12 @@
 #include "../Utilities/Samplers.h"
 #include "../Utilities/RenderLayer.h"
 #include "TextureLoader.h"
-
+#include "MaterialLoader.h"
+#include "GeometryLoader.h"
+#include "PSOBuilder.h"
+#include "RenderItemBuilder.h"
+#include "ConfigConstants.h"
+#include "DescriptorHeapBuilder.h"
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace DirectX::PackedVector;
