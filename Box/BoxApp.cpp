@@ -46,16 +46,21 @@ bool BoxApp::Initialize()
     mCamera.SetPosition(0.0f, 2.0f, -15.0f);
 
     mShadowMap = std::make_unique<ShadowMap>(md3dDevice.Get(), 2048, 2048);
+    mSSAmbientOcclusion = std::make_unique<SSAmbientOcclusion>(md3dDevice.Get(),
+        mCommandList.Get(), mClientWidth, mClientHeight);
 
     LoadTextures();
     BuildRootSignature();
-    BuildDescriptorHeaps();
+    BuildSsaoRootSignature();
+    BuildDescriptorHeap();
     BuildShadersAndInputLayout();
     BuildShapeGeometry();
     BuildMaterials();
     BuildRenderItems();
     BuildFrameResources();
-    BuildPSO();
+    BuildPSOs();
+
+    mSSAmbientOcclusion->SetPSOs(mPSOs["ssao"].Get(), mPSOs["ssaoBlur"].Get());
 
     // Execute the initialization commands.
     ThrowIfFailed(mCommandList->Close());
@@ -74,6 +79,13 @@ void BoxApp::OnResize()
 
     // The window resized, so update the aspect ratio and recompute the projection matrix.
     mCamera.SetLens(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
+    if (mSSAmbientOcclusion != nullptr)
+    {
+        mSSAmbientOcclusion->OnResize(mClientWidth, mClientHeight);
+
+        // Resources changed, so need to rebuild descriptors.
+        mSSAmbientOcclusion->RebuildDescriptors(mDepthStencilBuffer.Get());
+    }
 }
 
 void BoxApp::Update(const GameTimer& gt)
@@ -110,10 +122,12 @@ void BoxApp::Update(const GameTimer& gt)
 
     AnimateMaterials(gt);
     UpdateObjectCBs(gt);
-    UpdateShadowTransform(gt);
     UpdateMaterialCBs(gt);
+    UpdateShadowTransform(gt);
     UpdateMainPassCB(gt);
     UpdateShadowPassCB(gt);
+    UpdateSsaoCB(gt);
+
 }
 
 void BoxApp::Draw(const GameTimer& gt)
@@ -129,6 +143,7 @@ void BoxApp::Draw(const GameTimer& gt)
     ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvDescriptorHeap.Get() };
     mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
+    // Shadow Pass
     mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
 
     auto matBuffer = mCurrFrameResource->MaterialCB->Resource();
@@ -139,6 +154,27 @@ void BoxApp::Draw(const GameTimer& gt)
     mCommandList->SetGraphicsRootDescriptorTable(4, mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart()); // bind all textures
     DrawSceneToShadowMap();
 
+    // Depth pass
+
+    DrawNormalsAndDepth();
+
+    // Compute SSAO
+    mCommandList->SetGraphicsRootSignature(mSsaoRootSignature.Get());
+    mSSAmbientOcclusion->ComputeSsao(mCommandList.Get(), mCurrFrameResource, 3);
+
+    // Indicate a state transition on the resource usage.
+    mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+        D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+    // Main rendering pass
+
+    mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
+
+    // Bind all the materials used in this scene.  For structured buffers, we can bypass the heap and 
+// set as a root descriptor.
+    matBuffer = mCurrFrameResource->MaterialCB->Resource();
+    mCommandList->SetGraphicsRootShaderResourceView(2, matBuffer->GetGPUVirtualAddress());
+
     mCommandList->RSSetViewports(1, &mScreenViewport);
     mCommandList->RSSetScissorRects(1, &mScissorRect);
 
@@ -146,12 +182,15 @@ void BoxApp::Draw(const GameTimer& gt)
     mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
         D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-    // Clear the back buffer and depth buffer.
+    // Clear the back buffer.
     mCommandList->ClearRenderTargetView(CurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
-    mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
     // Specify the buffers we are going to render to.
     mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
+
+    // Bind Textures
+    mCommandList->SetGraphicsRootDescriptorTable(4, mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+
 
     auto passCB = mCurrFrameResource->PassCB->Resource();
     mCommandList->SetGraphicsRootConstantBufferView(1, passCB->GetGPUVirtualAddress());
@@ -255,10 +294,10 @@ void BoxApp::AnimateMaterials(const GameTimer& gt)
 void BoxApp::BuildRootSignature()
 {
     CD3DX12_DESCRIPTOR_RANGE texTable0;
-    texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 0);
+    texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 0, 0);
 
     CD3DX12_DESCRIPTOR_RANGE texTable1;
-    texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 2, 0);
+    texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 3, 0);
 
     // Root parameter can be a table, root descriptor or root constants.
     CD3DX12_ROOT_PARAMETER slotRootParameter[5];
@@ -319,12 +358,6 @@ void BoxApp::LoadTextures() {
     loader.Load(md3dDevice, mCommandList, &mTextures);
 }
 
-void BoxApp::BuildPSO()
-{
-    PSOBuilder builder;
-    builder.Load(md3dDevice, mCommandList, &mPSOs, mInputLayout, mRootSignature, mShaders, mBackBufferFormat, m4xMsaaState, m4xMsaaQuality, mDepthStencilFormat);
-}
-
 void BoxApp::BuildRenderItems() {
 
     RenderItemBuilder builder;
@@ -338,16 +371,6 @@ void BoxApp::BuildFrameResources()
         mFrameResources.push_back(std::make_unique<FrameResource>(md3dDevice.Get(),
             2, (UINT)mAllRitems.size(), (UINT) mMaterials.size() ));
     }
-}
-
-void BoxApp::BuildDescriptorHeaps() {
-
-    DescriptorHeapBuilder builder;
-    builder.Load(md3dDevice, &mSrvDescriptorHeap, mDsvHeap, &mShadowMap, 
-        &mNullSrv, &mTextures, mCbvSrvDescriptorSize, mDsvDescriptorSize, mCbvSrvUavDescriptorSize,
-        &mSkyTexHeapIndex, &mShadowMapHeapIndex, &mNullCubeSrvIndex, &mNullTexSrvIndex);
-    auto panda = 4;
-
 }
 
 void BoxApp::UpdateObjectCBs(const GameTimer& gt)
@@ -412,7 +435,15 @@ void BoxApp::UpdateMainPassCB(const GameTimer& gt)
     XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);
     XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
     XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
+    
+    // Transform NDC space [-1,+1]^2 to texture space [0,1]^2
+    XMMATRIX T(
+        0.5f, 0.0f, 0.0f, 0.0f,
+        0.0f, -0.5f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.0f, 1.0f);
 
+    XMMATRIX viewProjTex = XMMatrixMultiply(viewProj, T);
     XMMATRIX shadowTransform = XMLoadFloat4x4(&mShadowTransform);
 
     XMStoreFloat4x4(&mMainPassCB.View, XMMatrixTranspose(view));
@@ -421,6 +452,7 @@ void BoxApp::UpdateMainPassCB(const GameTimer& gt)
     XMStoreFloat4x4(&mMainPassCB.InvProj, XMMatrixTranspose(invProj));
     XMStoreFloat4x4(&mMainPassCB.ViewProj, XMMatrixTranspose(viewProj));
     XMStoreFloat4x4(&mMainPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
+    XMStoreFloat4x4(&mMainPassCB.ViewProjTex, XMMatrixTranspose(viewProjTex));
     XMStoreFloat4x4(&mMainPassCB.ShadowTransform, XMMatrixTranspose(shadowTransform));
 
     mMainPassCB.EyePosW = mCamera.GetPosition3f();
@@ -531,6 +563,120 @@ void BoxApp::DrawSceneToShadowMap()
         D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 }
 
+void BoxApp::UpdateSsaoCB(const GameTimer& gt)
+{
+    AmbientOcclusionConstants ssaoCB;
+
+    XMMATRIX P = mCamera.GetProj();
+
+    // Transform NDC space [-1,+1]^2 to texture space [0,1]^2
+    XMMATRIX T(
+        0.5f, 0.0f, 0.0f, 0.0f,
+        0.0f, -0.5f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.0f, 1.0f);
+
+    ssaoCB.Proj = mMainPassCB.Proj;
+    ssaoCB.InvProj = mMainPassCB.InvProj;
+    XMStoreFloat4x4(&ssaoCB.ProjTex, XMMatrixTranspose(P * T));
+
+    mSSAmbientOcclusion->GetOffsetVectors(ssaoCB.OffsetVectors);
+
+    auto blurWeights = mSSAmbientOcclusion->CalcGaussWeights(2.5f);
+    ssaoCB.BlurWeights[0] = XMFLOAT4(&blurWeights[0]);
+    ssaoCB.BlurWeights[1] = XMFLOAT4(&blurWeights[4]);
+    ssaoCB.BlurWeights[2] = XMFLOAT4(&blurWeights[8]);
+
+    ssaoCB.InvRenderTargetSize = XMFLOAT2(1.0f / mSSAmbientOcclusion->SsaoMapWidth(), 1.0f / mSSAmbientOcclusion->SsaoMapHeight());
+
+    // Coordinates given in view space.
+    ssaoCB.OcclusionRadius = 0.5f;
+    ssaoCB.OcclusionFadeStart = 0.2f;
+    ssaoCB.OcclusionFadeEnd = 1.0f;
+    ssaoCB.SurfaceEpsilon = 0.05f;
+
+    auto currSsaoCB = mCurrFrameResource->SsaoCB.get();
+    currSsaoCB->CopyData(0, ssaoCB);
+}
+
+void BoxApp::BuildSsaoRootSignature()
+{
+    CD3DX12_DESCRIPTOR_RANGE texTable0;
+    texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 0);
+
+    CD3DX12_DESCRIPTOR_RANGE texTable1;
+    texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2, 0);
+
+    // Root parameter can be a table, root descriptor or root constants.
+    CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+
+    // Perfomance TIP: Order from most frequent to least frequent.
+    slotRootParameter[0].InitAsConstantBufferView(0);
+    slotRootParameter[1].InitAsConstants(1, 1);
+    slotRootParameter[2].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
+    slotRootParameter[3].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
+
+    const CD3DX12_STATIC_SAMPLER_DESC pointClamp(
+        0, // shaderRegister
+        D3D12_FILTER_MIN_MAG_MIP_POINT, // filter
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP); // addressW
+
+    const CD3DX12_STATIC_SAMPLER_DESC linearClamp(
+        1, // shaderRegister
+        D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
+        D3D12_TEXTURE_ADDRESS_MODE_CLAMP); // addressW
+
+    const CD3DX12_STATIC_SAMPLER_DESC depthMapSam(
+        2, // shaderRegister
+        D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+        D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressU
+        D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressV
+        D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressW
+        0.0f,
+        0,
+        D3D12_COMPARISON_FUNC_LESS_EQUAL,
+        D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE);
+
+    const CD3DX12_STATIC_SAMPLER_DESC linearWrap(
+        3, // shaderRegister
+        D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+        D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+        D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+        D3D12_TEXTURE_ADDRESS_MODE_WRAP); // addressW
+
+    std::array<CD3DX12_STATIC_SAMPLER_DESC, 4> staticSamplers =
+    {
+        pointClamp, linearClamp, depthMapSam, linearWrap
+    };
+
+    // A root signature is an array of root parameters.
+    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
+        (UINT)staticSamplers.size(), staticSamplers.data(),
+        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+    // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+    ComPtr<ID3DBlob> serializedRootSig = nullptr;
+    ComPtr<ID3DBlob> errorBlob = nullptr;
+    HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+        serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+
+    if (errorBlob != nullptr)
+    {
+        ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+    }
+    ThrowIfFailed(hr);
+
+    ThrowIfFailed(md3dDevice->CreateRootSignature(
+        0,
+        serializedRootSig->GetBufferPointer(),
+        serializedRootSig->GetBufferSize(),
+        IID_PPV_ARGS(mSsaoRootSignature.GetAddressOf())));
+}
+
 void BoxApp::UpdateShadowTransform(const GameTimer& gt)
 {
     // Only the first "main" light casts a shadow.
@@ -575,7 +721,7 @@ void BoxApp::CreateRtvAndDsvDescriptorHeaps()
 {
     // Add +6 RTV for cube render target.
     D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
-    rtvHeapDesc.NumDescriptors = SwapChainBufferCount;
+    rtvHeapDesc.NumDescriptors = SwapChainBufferCount + 3;
     rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
     rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
     rtvHeapDesc.NodeMask = 0;
@@ -590,4 +736,65 @@ void BoxApp::CreateRtvAndDsvDescriptorHeaps()
     dsvHeapDesc.NodeMask = 0;
     ThrowIfFailed(md3dDevice->CreateDescriptorHeap(
         &dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())));
+}
+
+void BoxApp::DrawNormalsAndDepth()
+{
+    mCommandList->RSSetViewports(1, &mScreenViewport);
+    mCommandList->RSSetScissorRects(1, &mScissorRect);
+
+    auto normalMap = mSSAmbientOcclusion->NormalMap();
+    auto normalMapRtv = mSSAmbientOcclusion->NormalMapRtv();
+
+    // Change to RENDER_TARGET.
+    mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(normalMap,
+        D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+    // Clear the screen normal map and depth buffer.
+    float clearValue[] = { 0.0f, 0.0f, 1.0f, 0.0f };
+    mCommandList->ClearRenderTargetView(normalMapRtv, clearValue, 0, nullptr);
+    mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+    // Specify the buffers we are going to render to.
+    mCommandList->OMSetRenderTargets(1, &normalMapRtv, true, &DepthStencilView());
+
+    // Bind the constant buffer for this pass.
+    auto passCB = mCurrFrameResource->PassCB->Resource();
+    mCommandList->SetGraphicsRootConstantBufferView(1, passCB->GetGPUVirtualAddress());
+
+    mCommandList->SetPipelineState(mPSOs["drawNormals"].Get());
+
+    DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
+
+    // Change back to GENERIC_READ so we can read the texture in a shader.
+    mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(normalMap,
+        D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+}
+
+CD3DX12_CPU_DESCRIPTOR_HANDLE BoxApp::GetCpuSrv(int index) const
+{
+    auto srv = CD3DX12_CPU_DESCRIPTOR_HANDLE(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+    srv.Offset(index, mCbvSrvUavDescriptorSize);
+    return srv;
+}
+
+CD3DX12_GPU_DESCRIPTOR_HANDLE BoxApp::GetGpuSrv(int index)const
+{
+    auto srv = CD3DX12_GPU_DESCRIPTOR_HANDLE(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+    srv.Offset(index, mCbvSrvUavDescriptorSize);
+    return srv;
+}
+
+CD3DX12_CPU_DESCRIPTOR_HANDLE BoxApp::GetDsv(int index)const
+{
+    auto dsv = CD3DX12_CPU_DESCRIPTOR_HANDLE(mDsvHeap->GetCPUDescriptorHandleForHeapStart());
+    dsv.Offset(index, mDsvDescriptorSize);
+    return dsv;
+}
+
+CD3DX12_CPU_DESCRIPTOR_HANDLE BoxApp::GetRtv(int index)const
+{
+    auto rtv = CD3DX12_CPU_DESCRIPTOR_HANDLE(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
+    rtv.Offset(index, mRtvDescriptorSize);
+    return rtv;
 }

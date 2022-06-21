@@ -9,12 +9,11 @@
 #include "TextureLoader.h"
 #include "MaterialLoader.h"
 #include "GeometryLoader.h"
-#include "PSOBuilder.h"
 #include "RenderItemBuilder.h"
 #include "ConfigConstants.h"
-#include "DescriptorHeapBuilder.h"
 #include "ShadowMap.h"
 #include "ShadersLoader.h"
+#include "SSAmbientOclusion.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -55,7 +54,7 @@ private:
     void BuildRootSignature();
     void BuildShadersAndInputLayout();
     void BuildShapeGeometry();
-    void BuildPSO();
+    void BuildPSOs();
     void AnimateMaterials(const GameTimer& gt);
     void BuildMaterials();
     void LoadTextures();
@@ -67,7 +66,7 @@ private:
 
     void BuildFrameResources();
 
-    void BuildDescriptorHeaps();
+    void BuildDescriptorHeap();
 
     void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
 
@@ -76,9 +75,19 @@ private:
     void UpdateShadowTransform(const GameTimer& gt);
     void DrawSceneToShadowMap();
 
+    void UpdateSsaoCB(const GameTimer& gt);
+    void BuildSsaoRootSignature();
+    void DrawNormalsAndDepth();
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuSrv(int index)const;
+    CD3DX12_GPU_DESCRIPTOR_HANDLE GetGpuSrv(int index)const;
+    CD3DX12_CPU_DESCRIPTOR_HANDLE GetDsv(int index)const;
+    CD3DX12_CPU_DESCRIPTOR_HANDLE GetRtv(int index)const;
+
 private:
 
     ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
+    ComPtr<ID3D12RootSignature> mSsaoRootSignature = nullptr;
     ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
     Samplers mSamplers;
 
@@ -100,7 +109,6 @@ private:
     std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
 
     std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
-
     std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs;
 
     UINT mPassCbvOffset = 0;
@@ -114,10 +122,13 @@ private:
 
     Camera mCamera;
     
+    UINT mSsaoHeapIndexStart = 0;
+    UINT mSsaoAmbientMapIndex = 0;
     UINT mSkyTexHeapIndex = 0;
     UINT mShadowMapHeapIndex = 0;
     UINT mNullCubeSrvIndex = 0;
-    UINT mNullTexSrvIndex = 0;
+    UINT mNullTexSrvIndex1 = 0;
+    UINT mNullTexSrvIndex2 = 0;
 
     // shadow map variables
     float mLightNearZ = 0.0f;
@@ -128,6 +139,7 @@ private:
     XMFLOAT4X4 mShadowTransform = MathHelper::Identity4x4();
     PassConstants mShadowPassCB;// index 1 of pass cbuffer.
     std::unique_ptr<ShadowMap> mShadowMap;
+    std::unique_ptr<SSAmbientOcclusion> mSSAmbientOcclusion;
     CD3DX12_GPU_DESCRIPTOR_HANDLE mNullSrv;
 
     float mLightRotationAngle = 0.0f;
@@ -138,4 +150,4 @@ private:
     };
     XMFLOAT3 mRotatedLightDirections[3];
     DirectX::BoundingSphere mBounds;
-}; 
+};

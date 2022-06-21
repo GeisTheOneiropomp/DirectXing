@@ -8,6 +8,7 @@ FrameResource::FrameResource(ID3D12Device* device, UINT passCount, UINT objectCo
 
     PassCB = std::make_unique<UploadBuffer<PassConstants>>(device, passCount, true);
     ObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(device, objectCount, true);
+    SsaoCB = std::make_unique<UploadBuffer<AmbientOcclusionConstants>>(device, 1, true);
     MaterialCB = std::make_unique<UploadBuffer<MaterialConstants>>(device, materialCount, true);
 }
 

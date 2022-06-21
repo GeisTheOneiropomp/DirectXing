@@ -158,8 +158,10 @@
     <ClCompile Include="MaterialLoader.cpp" />
     <ClCompile Include="PSOBuilder.cpp" />
     <ClCompile Include="RenderItemBuilder.cpp" />
+    <ClCompile Include="Samplers.cpp" />
     <ClCompile Include="ShadersLoader.cpp" />
     <ClCompile Include="ShadowMap.cpp" />
+    <ClCompile Include="SSAmbientOclusion.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -179,19 +181,19 @@
     <ClInclude Include="..\Utilities\Submesh.h" />
     <ClInclude Include="..\Utilities\Texture.h" />
     <ClInclude Include="..\Utilities\UploadBuffer.h" />
+    <ClInclude Include="AmbientOcclusionConstants.h" />
     <ClInclude Include="BoxApp.h" />
     <ClInclude Include="ConfigConstants.h" />
-    <ClInclude Include="DescriptorHeapBuilder.h" />
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="GeometryLoader.h" />
     <ClInclude Include="MaterialLoader.h" />
     <ClInclude Include="ObjectConstants.h" />
     <ClInclude Include="PassConstants.h" />
-    <ClInclude Include="PSOBuilder.h" />
     <ClInclude Include="RenderItem.h" />
     <ClInclude Include="RenderItemBuilder.h" />
     <ClInclude Include="ShadersLoader.h" />
     <ClInclude Include="ShadowMap.h" />
+    <ClInclude Include="SSAmbientOclusion.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>

@@ -1,89 +1,152 @@
-#include "PSOBuilder.h"
+#include "BoxApp.h"
 #include "../Utilities/d3dx12.h"
 #include "../Utilities/d3dUtil.h"
 
-void PSOBuilder::Load(Microsoft::WRL::ComPtr<ID3D12Device> d3dDevice, 
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList, 
-    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12PipelineState>> *psos,
-    std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout,
-    Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature,
-    std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> shaders,
-    DXGI_FORMAT backBufferFormat, bool fourxMsaaState, UINT fourxMsaaQuality,
-    DXGI_FORMAT depthStencilFormat
-    )
+void BoxApp::BuildPSOs() 
 {
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
-    ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-    psoDesc.InputLayout = { inputLayout.data(), (UINT)inputLayout.size() };
-    psoDesc.pRootSignature = rootSignature.Get();
-    psoDesc.VS =
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC basePsoDesc;
+
+
+    ZeroMemory(&basePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+    basePsoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
+    basePsoDesc.pRootSignature = mRootSignature.Get();
+    basePsoDesc.VS =
     {
-        reinterpret_cast<BYTE*>(shaders["standardVS"]->GetBufferPointer()),
-        shaders["standardVS"]->GetBufferSize()
+        reinterpret_cast<BYTE*>(mShaders["standardVS"]->GetBufferPointer()),
+        mShaders["standardVS"]->GetBufferSize()
     };
-    psoDesc.PS =
+    basePsoDesc.PS =
     {
-        reinterpret_cast<BYTE*>(shaders["opaquePS"]->GetBufferPointer()),
-        shaders["opaquePS"]->GetBufferSize()
+        reinterpret_cast<BYTE*>(mShaders["opaquePS"]->GetBufferPointer()),
+        mShaders["opaquePS"]->GetBufferSize()
     };
-    psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psoDesc.SampleMask = UINT_MAX;
-    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psoDesc.NumRenderTargets = 1;
-    psoDesc.RTVFormats[0] = backBufferFormat;
-    psoDesc.SampleDesc.Count = fourxMsaaState ? 4 : 1;
-    psoDesc.SampleDesc.Quality = fourxMsaaState ? (fourxMsaaQuality - 1) : 0;
-    psoDesc.DSVFormat = depthStencilFormat;
-    auto opaquePSO = (*psos)["opaque"];
-    ThrowIfFailed(d3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&(*psos)["opaque"])));
+    basePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    basePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    basePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    basePsoDesc.SampleMask = UINT_MAX;
+    basePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    basePsoDesc.NumRenderTargets = 1;
+    basePsoDesc.RTVFormats[0] = mBackBufferFormat;
+    basePsoDesc.SampleDesc.Count = m4xMsaaState ? 4 : 1;
+    basePsoDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
+    basePsoDesc.DSVFormat = mDepthStencilFormat;
 
     //
-   // PSO for shadow map pass.
-   //
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC smapPsoDesc = psoDesc;
+    // PSO for opaque objects.
+    //
+
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc = basePsoDesc;
+    opaquePsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_EQUAL;
+    opaquePsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+    ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
+
+    //
+    // PSO for shadow map pass.
+    //
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC smapPsoDesc = basePsoDesc;
     smapPsoDesc.RasterizerState.DepthBias = 100000;
     smapPsoDesc.RasterizerState.DepthBiasClamp = 0.0f;
     smapPsoDesc.RasterizerState.SlopeScaledDepthBias = 1.0f;
-    smapPsoDesc.pRootSignature = rootSignature.Get();
+    smapPsoDesc.pRootSignature = mRootSignature.Get();
     smapPsoDesc.VS =
     {
-        reinterpret_cast<BYTE*>(shaders["shadowVS"]->GetBufferPointer()),
-        shaders["shadowVS"]->GetBufferSize()
+        reinterpret_cast<BYTE*>(mShaders["shadowVS"]->GetBufferPointer()),
+        mShaders["shadowVS"]->GetBufferSize()
     };
     smapPsoDesc.PS =
     {
-        reinterpret_cast<BYTE*>(shaders["shadowOpaquePS"]->GetBufferPointer()),
-        shaders["shadowOpaquePS"]->GetBufferSize()
+        reinterpret_cast<BYTE*>(mShaders["shadowOpaquePS"]->GetBufferPointer()),
+        mShaders["shadowOpaquePS"]->GetBufferSize()
     };
 
     // Shadow map pass does not have a render target.
     smapPsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
     smapPsoDesc.NumRenderTargets = 0;
-    ThrowIfFailed(d3dDevice->CreateGraphicsPipelineState(&smapPsoDesc, IID_PPV_ARGS(&(*psos)["shadow_opaque"])));
+    ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&smapPsoDesc, IID_PPV_ARGS(&mPSOs["shadow_opaque"])));
 
     //
     // PSO for debug layer.
     //
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC debugPsoDesc = psoDesc;
-    debugPsoDesc.pRootSignature = rootSignature.Get();
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC debugPsoDesc = basePsoDesc;
+    debugPsoDesc.pRootSignature = mRootSignature.Get();
     debugPsoDesc.VS =
     {
-        reinterpret_cast<BYTE*>(shaders["debugVS"]->GetBufferPointer()),
-        shaders["debugVS"]->GetBufferSize()
+        reinterpret_cast<BYTE*>(mShaders["debugVS"]->GetBufferPointer()),
+        mShaders["debugVS"]->GetBufferSize()
     };
     debugPsoDesc.PS =
     {
-        reinterpret_cast<BYTE*>(shaders["debugPS"]->GetBufferPointer()),
-        shaders["debugPS"]->GetBufferSize()
+        reinterpret_cast<BYTE*>(mShaders["debugPS"]->GetBufferPointer()),
+        mShaders["debugPS"]->GetBufferSize()
     };
-    ThrowIfFailed(d3dDevice->CreateGraphicsPipelineState(&debugPsoDesc, IID_PPV_ARGS(&(*psos)["debug"])));
+    ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&debugPsoDesc, IID_PPV_ARGS(&mPSOs["debug"])));
+
+    //
+    // PSO for drawing normals.
+    //
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC drawNormalsPsoDesc = basePsoDesc;
+    drawNormalsPsoDesc.VS =
+    {
+        reinterpret_cast<BYTE*>(mShaders["drawNormalsVS"]->GetBufferPointer()),
+        mShaders["drawNormalsVS"]->GetBufferSize()
+    };
+    drawNormalsPsoDesc.PS =
+    {
+        reinterpret_cast<BYTE*>(mShaders["drawNormalsPS"]->GetBufferPointer()),
+        mShaders["drawNormalsPS"]->GetBufferSize()
+    };
+    drawNormalsPsoDesc.RTVFormats[0] = SSAmbientOcclusion::NormalMapFormat;
+    drawNormalsPsoDesc.SampleDesc.Count = 1;
+    drawNormalsPsoDesc.SampleDesc.Quality = 0;
+    drawNormalsPsoDesc.DSVFormat = mDepthStencilFormat;
+    ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&drawNormalsPsoDesc, IID_PPV_ARGS(&mPSOs["drawNormals"])));
+
+    //
+    // PSO for SSAO.
+    //
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC ssaoPsoDesc = basePsoDesc;
+    ssaoPsoDesc.InputLayout = { nullptr, 0 };
+    ssaoPsoDesc.pRootSignature = mSsaoRootSignature.Get();
+    ssaoPsoDesc.VS =
+    {
+        reinterpret_cast<BYTE*>(mShaders["ssaoVS"]->GetBufferPointer()),
+        mShaders["ssaoVS"]->GetBufferSize()
+    };
+    ssaoPsoDesc.PS =
+    {
+        reinterpret_cast<BYTE*>(mShaders["ssaoPS"]->GetBufferPointer()),
+        mShaders["ssaoPS"]->GetBufferSize()
+    };
+
+    // SSAO effect does not need the depth buffer.
+    ssaoPsoDesc.DepthStencilState.DepthEnable = false;
+    ssaoPsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+    ssaoPsoDesc.RTVFormats[0] = SSAmbientOcclusion::AmbientMapFormat;
+    ssaoPsoDesc.SampleDesc.Count = 1;
+    ssaoPsoDesc.SampleDesc.Quality = 0;
+    ssaoPsoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
+    ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&ssaoPsoDesc, IID_PPV_ARGS(&mPSOs["ssao"])));
+
+    //
+    // PSO for SSAO blur.
+    //
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC ssaoBlurPsoDesc = ssaoPsoDesc;
+    ssaoBlurPsoDesc.VS =
+    {
+        reinterpret_cast<BYTE*>(mShaders["ssaoBlurVS"]->GetBufferPointer()),
+        mShaders["ssaoBlurVS"]->GetBufferSize()
+    };
+    ssaoBlurPsoDesc.PS =
+    {
+        reinterpret_cast<BYTE*>(mShaders["ssaoBlurPS"]->GetBufferPointer()),
+        mShaders["ssaoBlurPS"]->GetBufferSize()
+    };
+    ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&ssaoBlurPsoDesc, IID_PPV_ARGS(&mPSOs["ssaoBlur"])));
 
     //
     // PSO for sky.
     //
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC skyPsoDesc = psoDesc;
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC skyPsoDesc = basePsoDesc;
 
     // The camera is inside the sky sphere, so just turn off culling.
     skyPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
@@ -92,17 +155,16 @@ void PSOBuilder::Load(Microsoft::WRL::ComPtr<ID3D12Device> d3dDevice,
     // Otherwise, the normalized depth values at z = 1 (NDC) will 
     // fail the depth test if the depth buffer was cleared to 1.
     skyPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-    skyPsoDesc.pRootSignature = rootSignature.Get();
+    skyPsoDesc.pRootSignature = mRootSignature.Get();
     skyPsoDesc.VS =
     {
-        reinterpret_cast<BYTE*>(shaders["skyVS"]->GetBufferPointer()),
-        shaders["skyVS"]->GetBufferSize()
+        reinterpret_cast<BYTE*>(mShaders["skyVS"]->GetBufferPointer()),
+        mShaders["skyVS"]->GetBufferSize()
     };
     skyPsoDesc.PS =
     {
-        reinterpret_cast<BYTE*>(shaders["skyPS"]->GetBufferPointer()),
-        shaders["skyPS"]->GetBufferSize()
+        reinterpret_cast<BYTE*>(mShaders["skyPS"]->GetBufferPointer()),
+        mShaders["skyPS"]->GetBufferSize()
     };
-    auto skyPSO = (*psos)["sky"];
-    ThrowIfFailed(d3dDevice->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&(*psos)["sky"])));
+    ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&mPSOs["sky"])));
 }

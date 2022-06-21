@@ -20,8 +20,17 @@ void ShadersLoader::Load(std::unordered_map<std::string, Microsoft::WRL::ComPtr<
     (*shaders)["debugVS"] = d3dUtil::CompileShader(L"Shaders\\ShadowDebug.hlsl", nullptr, "VS", "vs_5_1");
     (*shaders)["debugPS"] = d3dUtil::CompileShader(L"Shaders\\ShadowDebug.hlsl", nullptr, "PS", "ps_5_1");
 
+    (*shaders)["drawNormalsVS"] = d3dUtil::CompileShader(L"Shaders\\DrawNormals.hlsl", nullptr, "VS", "vs_5_1");
+    (*shaders)["drawNormalsPS"] = d3dUtil::CompileShader(L"Shaders\\DrawNormals.hlsl", nullptr, "PS", "ps_5_1");
+
     (*shaders)["skyVS"] = d3dUtil::CompileShader(L"Shaders\\Skybox.hlsl", nullptr, "VS", "vs_5_1");
     (*shaders)["skyPS"] = d3dUtil::CompileShader(L"Shaders\\Skybox.hlsl", nullptr, "PS", "ps_5_1");
+
+    (*shaders)["ssaoVS"] = d3dUtil::CompileShader(L"Shaders\\Ssao.hlsl", nullptr, "VS", "vs_5_1");
+    (*shaders)["ssaoPS"] = d3dUtil::CompileShader(L"Shaders\\Ssao.hlsl", nullptr, "PS", "ps_5_1");
+
+    (*shaders)["ssaoBlurVS"] = d3dUtil::CompileShader(L"Shaders\\SsaoBlur.hlsl", nullptr, "VS", "vs_5_1");
+    (*shaders)["ssaoBlurPS"] = d3dUtil::CompileShader(L"Shaders\\SsaoBlur.hlsl", nullptr, "PS", "ps_5_1");
 
     //TODO: automate this
     *layout =
