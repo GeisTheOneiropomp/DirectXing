@@ -10,3 +10,4 @@ struct Light
     float SpotPower = 64.0f;                            // spot light only
 };
 
+//TODO add a light class that handles lighting properly

@@ -158,6 +158,8 @@
     <ClCompile Include="MaterialLoader.cpp" />
     <ClCompile Include="PSOBuilder.cpp" />
     <ClCompile Include="RenderItemBuilder.cpp" />
+    <ClCompile Include="ShadersLoader.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -188,6 +190,8 @@
     <ClInclude Include="PSOBuilder.h" />
     <ClInclude Include="RenderItem.h" />
     <ClInclude Include="RenderItemBuilder.h" />
+    <ClInclude Include="ShadersLoader.h" />
+    <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>

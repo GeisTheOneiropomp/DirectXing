@@ -13,6 +13,9 @@
 #include "RenderItemBuilder.h"
 #include "ConfigConstants.h"
 #include "DescriptorHeapBuilder.h"
+#include "ShadowMap.h"
+#include "ShadersLoader.h"
+
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -45,6 +48,7 @@ private:
     virtual void OnMouseDown(WPARAM btnState, int x, int y)override;
     virtual void OnMouseUp(WPARAM btnState, int x, int y)override;
     virtual void OnMouseMove(WPARAM btnState, int x, int y)override;
+    virtual void CreateRtvAndDsvDescriptorHeaps()override;
 
     void OnKeyboardInput(const GameTimer& gt);
 
@@ -66,6 +70,11 @@ private:
     void BuildDescriptorHeaps();
 
     void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
+
+    void MakeShadowMap();
+    void UpdateShadowPassCB(const GameTimer& gt);
+    void UpdateShadowTransform(const GameTimer& gt);
+    void DrawSceneToShadowMap();
 
 private:
 
@@ -104,6 +113,29 @@ private:
     bool mIsWireframe = false;
 
     Camera mCamera;
+    
     UINT mSkyTexHeapIndex = 0;
+    UINT mShadowMapHeapIndex = 0;
+    UINT mNullCubeSrvIndex = 0;
+    UINT mNullTexSrvIndex = 0;
 
+    // shadow map variables
+    float mLightNearZ = 0.0f;
+    float mLightFarZ = 0.0f;
+    XMFLOAT3 mLightPosW;
+    XMFLOAT4X4 mLightView = MathHelper::Identity4x4();
+    XMFLOAT4X4 mLightProj = MathHelper::Identity4x4();
+    XMFLOAT4X4 mShadowTransform = MathHelper::Identity4x4();
+    PassConstants mShadowPassCB;// index 1 of pass cbuffer.
+    std::unique_ptr<ShadowMap> mShadowMap;
+    CD3DX12_GPU_DESCRIPTOR_HANDLE mNullSrv;
+
+    float mLightRotationAngle = 0.0f;
+    XMFLOAT3 mBaseLightDirections[3] = {
+        XMFLOAT3(0.57735f, -0.57735f, 0.57735f),
+        XMFLOAT3(-0.57735f, -0.57735f, 0.57735f),
+        XMFLOAT3(0.0f, -0.707f, -0.707f)
+    };
+    XMFLOAT3 mRotatedLightDirections[3];
+    DirectX::BoundingSphere mBounds;
 }; 

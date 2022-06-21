@@ -1,8 +1,3 @@
-//***************************************************************************************
-// Common.hlsl by Frank Luna (C) 2015 All Rights Reserved.
-//***************************************************************************************
-
-// Defaults for number of lights.
 #ifndef NUM_DIR_LIGHTS
     #define NUM_DIR_LIGHTS 3
 #endif
@@ -15,9 +10,9 @@
     #define NUM_SPOT_LIGHTS 0
 #endif
 
-// Include structures and functions for lighting.
 #include "Utilities/ComputeLighting.hlsl"
 #include "Utilities/NormalSampleToWorldSpace.hlsl"
+#include "Utilities/ShadowFactor.hlsl"
 
 struct MaterialData
 {
@@ -32,10 +27,11 @@ struct MaterialData
 };
 
 TextureCube gCubeMap : register(t0);
+Texture2D gShadowMap : register(t1);
 
 // An array of textures, which is only supported in shader model 5.1+.  Unlike Texture2DArray, the textures
 // in this array can be different sizes and formats, making it more flexible than texture arrays.
-Texture2D gTextureMaps[10] : register(t1);
+Texture2D gTextureMaps[10] : register(t2);
 
 // Put in space1, so the texture array does not overlap with these resources.  
 // The texture array will occupy registers t0, t1, ..., t3 in space0. 
@@ -48,6 +44,7 @@ SamplerState gsamLinearWrap       : register(s2);
 SamplerState gsamLinearClamp      : register(s3);
 SamplerState gsamAnisotropicWrap  : register(s4);
 SamplerState gsamAnisotropicClamp : register(s5);
+SamplerComparisonState gsamShadow : register(s6);
 
 // Constant data that varies per frame.
 cbuffer cbPerObject : register(b0)
@@ -69,6 +66,7 @@ cbuffer cbPass : register(b1)
     float4x4 gInvProj;
     float4x4 gViewProj;
     float4x4 gInvViewProj;
+    float4x4 gShadowTransform;
     float3 gEyePosW;
     float cbPerObjectPad1;
     float2 gRenderTargetSize;

@@ -31,7 +31,8 @@ struct VertexIn
 struct VertexOut
 {
     float4 PosH    : SV_POSITION;
-    float3 PosW    : POSITION;
+    float4 ShadowPosH : POSITION0;
+    float3 PosW    : POSITION1;
     float3 NormalW : NORMAL;
     float3 TangentW : TANGENT;
     float2 TexC    : TEXCOORD;
@@ -60,6 +61,8 @@ VertexOut VS(VertexIn vin)
     float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform);
     vout.TexC = mul(texC, matData.MatTransform).xy;
     
+    vout.ShadowPosH = mul(posW, gShadowTransform);
+
     return vout;
 }
 
@@ -73,14 +76,21 @@ float4 PS(VertexOut pin) : SV_Target
     uint diffuseMapIndex = matData.DiffuseMapIndex;
     uint normalMapIndex = matData.NormalMapIndex;
 
+    // Dynamically look up the texture in the array.
+    diffuseAlbedo *= gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
+    
+#ifdef ALPHA_TEST
+    // Discard pixel if texture alpha < 0.1.  We do this test as soon 
+    // as possible in the shader so that we can potentially exit the
+    // shader early, thereby skipping the rest of the shader code.
+    clip(diffuseAlbedo.a - 0.1f);
+#endif
+    
     // Interpolating normal can unnormalize it, so renormalize it.
     pin.NormalW = normalize(pin.NormalW);
 
     float4 normalMapSample = gTextureMaps[normalMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
     float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
-
-    // Dynamically look up the texture in the array.
-    diffuseAlbedo *= gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
 
     // Vector from point being lit to eye. 
     float3 toEyeW = normalize(gEyePosW - pin.PosW);
@@ -88,14 +98,17 @@ float4 PS(VertexOut pin) : SV_Target
     // Light terms.
     float4 ambient = gAmbientLight*diffuseAlbedo;
 
-    const float shininess = (1.0f - roughness) * normalMapSample.a;
+    // Only the first light casts a shadow.
+    float3 shadowFactor = float3(1.0f, 1.0f, 1.0f);
+    shadowFactor[0] = ShadowFactor(pin.ShadowPosH, gShadowMap, gsamShadow);
+
+    const float shininess = 1.0f - roughness;
     Material mat = { diffuseAlbedo, fresnelR0, shininess };
-    float3 shadowFactor = 1.0f;
+    
     float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
         bumpedNormalW, toEyeW, shadowFactor);
 
     float4 litColor = ambient + directLight;
-
     // Add in specular reflections.
     float3 r = reflect(-toEyeW, bumpedNormalW);
     float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);

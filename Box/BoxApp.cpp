@@ -27,6 +27,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 BoxApp::BoxApp(HINSTANCE hInstance)
 : D3DApp(hInstance) 
 {
+    mBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    mBounds.Radius= sqrtf(10.0f * 10.0f + 15.0f * 15.0f);
 }
 
 BoxApp::~BoxApp()
@@ -42,7 +44,8 @@ bool BoxApp::Initialize()
     ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
  
     mCamera.SetPosition(0.0f, 2.0f, -15.0f);
-    mCbvSrvDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+    mShadowMap = std::make_unique<ShadowMap>(md3dDevice.Get(), 2048, 2048);
 
     LoadTextures();
     BuildRootSignature();
@@ -90,10 +93,27 @@ void BoxApp::Update(const GameTimer& gt)
         WaitForSingleObject(eventHandle, INFINITE);
         CloseHandle(eventHandle);
     }
+
+    //
+// Animate the lights (and hence shadows).
+//
+
+    mLightRotationAngle += 0.1f * gt.DeltaTime();
+
+    XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
+    for (int i = 0; i < 3; ++i)
+    {
+        XMVECTOR lightDir = XMLoadFloat3(&mBaseLightDirections[i]);
+        lightDir = XMVector3TransformNormal(lightDir, R);
+        XMStoreFloat3(&mRotatedLightDirections[i], lightDir);
+    }
+
     AnimateMaterials(gt);
     UpdateObjectCBs(gt);
+    UpdateShadowTransform(gt);
     UpdateMaterialCBs(gt);
     UpdateMainPassCB(gt);
+    UpdateShadowPassCB(gt);
 }
 
 void BoxApp::Draw(const GameTimer& gt)
@@ -105,8 +125,19 @@ void BoxApp::Draw(const GameTimer& gt)
     ThrowIfFailed(cmdListAlloc->Reset());
     ThrowIfFailed(mCommandList->Reset(cmdListAlloc.Get(), mPSOs["opaque"].Get()));
 
-    // A command list can be reset after it has been added to the command queue via ExecuteCommandList.
-    // Reusing the command list reuses memory.
+
+    ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvDescriptorHeap.Get() };
+    mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+    mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
+
+    auto matBuffer = mCurrFrameResource->MaterialCB->Resource();
+    mCommandList->SetGraphicsRootShaderResourceView(2, matBuffer->GetGPUVirtualAddress());
+    
+    mCommandList->SetGraphicsRootDescriptorTable(3, mNullSrv);
+
+    mCommandList->SetGraphicsRootDescriptorTable(4, mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart()); // bind all textures
+    DrawSceneToShadowMap();
 
     mCommandList->RSSetViewports(1, &mScreenViewport);
     mCommandList->RSSetScissorRects(1, &mScissorRect);
@@ -122,33 +153,24 @@ void BoxApp::Draw(const GameTimer& gt)
     // Specify the buffers we are going to render to.
     mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
 
-    ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvDescriptorHeap.Get() };
-    mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-
-    mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
-
     auto passCB = mCurrFrameResource->PassCB->Resource();
     mCommandList->SetGraphicsRootConstantBufferView(1, passCB->GetGPUVirtualAddress());
 
-    auto matBuffer = mCurrFrameResource->MaterialCB->Resource();
-    mCommandList->SetGraphicsRootShaderResourceView(2, matBuffer->GetGPUVirtualAddress());
-
     // Bind the sky cube map.  For our demos, we just use one "world" cube map representing the environment
-// from far away, so all objects will use the same cube map and we only need to set it once per-frame.  
-// If we wanted to use "local" cube maps, we would have to change them per-object, or dynamically
-// index into an array of cube maps.
+    // from far away, so all objects will use the same cube map and we only need to set it once per-frame.  
+    // If we wanted to use "local" cube maps, we would have to change them per-object, or dynamically
+    // index into an array of cube maps.
 
     CD3DX12_GPU_DESCRIPTOR_HANDLE skyTexDescriptor(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-    skyTexDescriptor.Offset(mSkyTexHeapIndex, mCbvSrvDescriptorSize);
+    skyTexDescriptor.Offset(mSkyTexHeapIndex, mCbvSrvUavDescriptorSize);
     mCommandList->SetGraphicsRootDescriptorTable(3, skyTexDescriptor);
 
-    // Bind all the textures used in this scene.  Observe
-// that we only have to specify the first descriptor in the table.  
-// The root signature knows how many descriptors are expected in the table.
-    mCommandList->SetGraphicsRootDescriptorTable(4, mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-
+    mCommandList->SetPipelineState(mPSOs["opaque"].Get());
     DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
-     
+
+    mCommandList->SetPipelineState(mPSOs["debug"].Get());
+    DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Debug]);
+
     mCommandList->SetPipelineState(mPSOs["sky"].Get());
     DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Sky]);
 
@@ -233,10 +255,10 @@ void BoxApp::AnimateMaterials(const GameTimer& gt)
 void BoxApp::BuildRootSignature()
 {
     CD3DX12_DESCRIPTOR_RANGE texTable0;
-    texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
+    texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 0);
 
     CD3DX12_DESCRIPTOR_RANGE texTable1;
-    texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 1, 0);
+    texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 2, 0);
 
     // Root parameter can be a table, root descriptor or root constants.
     CD3DX12_ROOT_PARAMETER slotRootParameter[5];
@@ -276,24 +298,8 @@ void BoxApp::BuildRootSignature()
 
 void BoxApp::BuildShadersAndInputLayout()
 {
-
-    //TODO::Put this elsewhere
-    mShaders["standardVS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
-    
-    mShaders["opaquePS"] = d3dUtil::CompileShader(L"Shaders\\Default.hlsl", nullptr, "PS", "ps_5_1");
-
-    mShaders["skyVS"] = d3dUtil::CompileShader(L"Shaders\\Skybox.hlsl", nullptr, "VS", "vs_5_1");
-    
-    mShaders["skyPS"] = d3dUtil::CompileShader(L"Shaders\\Skybox.hlsl", nullptr, "PS", "ps_5_1");
-
-    //TODO: automate this
-    mInputLayout =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-        { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-    };
+    ShadersLoader loader;
+    loader.Load(&mShaders, &mInputLayout);
 }
 
 void BoxApp::BuildMaterials()
@@ -330,14 +336,17 @@ void BoxApp::BuildFrameResources()
     for (int i = 0; i < CONFIG_CONST_NUM_FRAMES; ++i)
     {
         mFrameResources.push_back(std::make_unique<FrameResource>(md3dDevice.Get(),
-            1, (UINT)mAllRitems.size(), (UINT) mMaterials.size() ));
+            2, (UINT)mAllRitems.size(), (UINT) mMaterials.size() ));
     }
 }
 
 void BoxApp::BuildDescriptorHeaps() {
 
     DescriptorHeapBuilder builder;
-    builder.Load(md3dDevice, &mSrvDescriptorHeap, &mTextures, mCbvSrvDescriptorSize, &mSkyTexHeapIndex);
+    builder.Load(md3dDevice, &mSrvDescriptorHeap, mDsvHeap, &mShadowMap, 
+        &mNullSrv, &mTextures, mCbvSrvDescriptorSize, mDsvDescriptorSize, mCbvSrvUavDescriptorSize,
+        &mSkyTexHeapIndex, &mShadowMapHeapIndex, &mNullCubeSrvIndex, &mNullTexSrvIndex);
+    auto panda = 4;
 
 }
 
@@ -404,12 +413,16 @@ void BoxApp::UpdateMainPassCB(const GameTimer& gt)
     XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
     XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
 
+    XMMATRIX shadowTransform = XMLoadFloat4x4(&mShadowTransform);
+
     XMStoreFloat4x4(&mMainPassCB.View, XMMatrixTranspose(view));
     XMStoreFloat4x4(&mMainPassCB.InvView, XMMatrixTranspose(invView));
     XMStoreFloat4x4(&mMainPassCB.Proj, XMMatrixTranspose(proj));
     XMStoreFloat4x4(&mMainPassCB.InvProj, XMMatrixTranspose(invProj));
     XMStoreFloat4x4(&mMainPassCB.ViewProj, XMMatrixTranspose(viewProj));
     XMStoreFloat4x4(&mMainPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
+    XMStoreFloat4x4(&mMainPassCB.ShadowTransform, XMMatrixTranspose(shadowTransform));
+
     mMainPassCB.EyePosW = mCamera.GetPosition3f();
     mMainPassCB.RenderTargetSize = XMFLOAT2((float)mClientWidth, (float)
         mClientHeight);
@@ -420,11 +433,11 @@ void BoxApp::UpdateMainPassCB(const GameTimer& gt)
     mMainPassCB.TotalTime = gt.TotalTime();
     mMainPassCB.DeltaTime = gt.DeltaTime();
     mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
-    mMainPassCB.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
+    mMainPassCB.Lights[0].Direction = mRotatedLightDirections[0];
     mMainPassCB.Lights[0].Strength = { 0.6f, 0.6f, 0.6f };
-    mMainPassCB.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
+    mMainPassCB.Lights[1].Direction = mRotatedLightDirections[1];
     mMainPassCB.Lights[1].Strength = { 0.3f, 0.3f, 0.3f };
-    mMainPassCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
+    mMainPassCB.Lights[2].Direction = mRotatedLightDirections[2];
     mMainPassCB.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
     auto currPassCB = mCurrFrameResource->PassCB.get();
     currPassCB->CopyData(0, mMainPassCB);
@@ -450,4 +463,131 @@ void BoxApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vect
 
         cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
     }
+}
+
+void BoxApp::MakeShadowMap() {
+    mShadowMap = std::make_unique<ShadowMap>(md3dDevice.Get(), 2048, 2048);
+}
+
+void BoxApp::UpdateShadowPassCB(const GameTimer& gt) {
+    XMMATRIX view = XMLoadFloat4x4(&mLightView);
+    XMMATRIX proj = XMLoadFloat4x4(&mLightProj);
+
+    XMMATRIX viewProj = XMMatrixMultiply(view, proj);
+    XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);
+    XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
+    XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
+
+    UINT w = mShadowMap->Width();
+    UINT h = mShadowMap->Height();
+
+    XMStoreFloat4x4(&mShadowPassCB.View, XMMatrixTranspose(view));
+    XMStoreFloat4x4(&mShadowPassCB.InvView, XMMatrixTranspose(invView));
+    XMStoreFloat4x4(&mShadowPassCB.Proj, XMMatrixTranspose(proj));
+    XMStoreFloat4x4(&mShadowPassCB.InvProj, XMMatrixTranspose(invProj));
+    XMStoreFloat4x4(&mShadowPassCB.ViewProj, XMMatrixTranspose(viewProj));
+    XMStoreFloat4x4(&mShadowPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
+    mShadowPassCB.EyePosW = mLightPosW;
+    mShadowPassCB.RenderTargetSize = XMFLOAT2((float)w, (float)h);
+    mShadowPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / w, 1.0f / h);
+    mShadowPassCB.NearZ = mLightNearZ;
+    mShadowPassCB.FarZ = mLightFarZ;
+
+    auto currPassCB = mCurrFrameResource->PassCB.get();
+    currPassCB->CopyData(1, mShadowPassCB);
+}
+
+void BoxApp::DrawSceneToShadowMap()
+{
+    mCommandList->RSSetViewports(1, &mShadowMap->Viewport());
+    mCommandList->RSSetScissorRects(1, &mShadowMap->ScissorRect());
+
+    // Change to DEPTH_WRITE.
+    mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mShadowMap->Resource(),
+        D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+
+    UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
+
+    // Clear the back buffer and depth buffer.
+    mCommandList->ClearDepthStencilView(mShadowMap->Dsv(),
+        D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+    // Set null render target because we are only going to draw to
+    // depth buffer.  Setting a null render target will disable color writes.
+    // Note the active PSO also must specify a render target count of 0.
+    mCommandList->OMSetRenderTargets(0, nullptr, false, &mShadowMap->Dsv());
+
+    // Bind the pass constant buffer for the shadow map pass.
+    auto passCB = mCurrFrameResource->PassCB->Resource();
+    D3D12_GPU_VIRTUAL_ADDRESS passCBAddress = passCB->GetGPUVirtualAddress() + 1 * passCBByteSize;
+    mCommandList->SetGraphicsRootConstantBufferView(1, passCBAddress);
+
+    mCommandList->SetPipelineState(mPSOs["shadow_opaque"].Get());
+
+    DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
+
+    // Change back to GENERIC_READ so we can read the texture in a shader.
+    mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mShadowMap->Resource(),
+        D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+}
+
+void BoxApp::UpdateShadowTransform(const GameTimer& gt)
+{
+    // Only the first "main" light casts a shadow.
+    XMVECTOR lightDir = XMLoadFloat3(&mRotatedLightDirections[0]);
+    XMVECTOR lightPos = -2.0f * mBounds.Radius * lightDir;
+    XMVECTOR targetPos = XMLoadFloat3(&mBounds.Center);
+    XMVECTOR lightUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMMATRIX lightView = XMMatrixLookAtLH(lightPos, targetPos, lightUp);
+
+    XMStoreFloat3(&mLightPosW, lightPos);
+
+    // Transform bounding sphere to light space.
+    XMFLOAT3 sphereCenterLS;
+    XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPos, lightView));
+
+    // Ortho frustum in light space encloses scene.
+    float l = sphereCenterLS.x - mBounds.Radius;
+    float b = sphereCenterLS.y - mBounds.Radius;
+    float n = sphereCenterLS.z - mBounds.Radius;
+    float r = sphereCenterLS.x + mBounds.Radius;
+    float t = sphereCenterLS.y + mBounds.Radius;
+    float f = sphereCenterLS.z + mBounds.Radius;
+
+    mLightNearZ = n;
+    mLightFarZ = f;
+    XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
+
+    // Transform NDC space [-1,+1]^2 to texture space [0,1]^2
+    XMMATRIX T(
+        0.5f, 0.0f, 0.0f, 0.0f,
+        0.0f, -0.5f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.0f, 1.0f);
+
+    XMMATRIX S = lightView * lightProj * T;
+    XMStoreFloat4x4(&mLightView, lightView);
+    XMStoreFloat4x4(&mLightProj, lightProj);
+    XMStoreFloat4x4(&mShadowTransform, S);
+}
+
+void BoxApp::CreateRtvAndDsvDescriptorHeaps()
+{
+    // Add +6 RTV for cube render target.
+    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
+    rtvHeapDesc.NumDescriptors = SwapChainBufferCount;
+    rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+    rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    rtvHeapDesc.NodeMask = 0;
+    ThrowIfFailed(md3dDevice->CreateDescriptorHeap(
+        &rtvHeapDesc, IID_PPV_ARGS(mRtvHeap.GetAddressOf())));
+
+    // Add +1 DSV for shadow map.
+    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
+    dsvHeapDesc.NumDescriptors = 2;
+    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+    dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    dsvHeapDesc.NodeMask = 0;
+    ThrowIfFailed(md3dDevice->CreateDescriptorHeap(
+        &dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())));
 }

@@ -4,7 +4,7 @@
  
 class Samplers {
 public:
-	static std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
+	static std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> GetStaticSamplers();
 private:
 	static CD3DX12_STATIC_SAMPLER_DESC GetPointWrapSampler();
 	static CD3DX12_STATIC_SAMPLER_DESC GetPointClampSampler();
@@ -12,15 +12,17 @@ private:
 	static CD3DX12_STATIC_SAMPLER_DESC GetLinearClampSampler();
 	static CD3DX12_STATIC_SAMPLER_DESC GetAnisotropicWrapSampler();
 	static CD3DX12_STATIC_SAMPLER_DESC GetAnisotropicClampSampler();
+	static CD3DX12_STATIC_SAMPLER_DESC GetShadowSampler();
 };
 
-std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> Samplers::GetStaticSamplers() {
+std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> Samplers::GetStaticSamplers() {
 	return { GetPointWrapSampler(), 
 			 GetPointClampSampler(), 
 			 GetLinearWrapSampler(), 
 			 GetLinearClampSampler(),
 			 GetAnisotropicWrapSampler(),
-			 GetAnisotropicClampSampler() };
+			 GetAnisotropicClampSampler(),
+			 GetShadowSampler()};
 }
 
 CD3DX12_STATIC_SAMPLER_DESC Samplers::GetPointWrapSampler() {
@@ -79,4 +81,17 @@ CD3DX12_STATIC_SAMPLER_DESC Samplers::GetAnisotropicClampSampler() {
 		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressW
 		0.0f,                              // mipLODBias
 		8);                                // maxAnisotropy
+}
+
+CD3DX12_STATIC_SAMPLER_DESC Samplers::GetShadowSampler() {
+	return CD3DX12_STATIC_SAMPLER_DESC(
+		6, // shaderRegister
+		D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressW
+		0.0f,                              // mipLODBias
+		16,
+		D3D12_COMPARISON_FUNC_LESS_EQUAL,
+		D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK); 
 }

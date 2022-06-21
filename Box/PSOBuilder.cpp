@@ -40,6 +40,47 @@ void PSOBuilder::Load(Microsoft::WRL::ComPtr<ID3D12Device> d3dDevice,
     ThrowIfFailed(d3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&(*psos)["opaque"])));
 
     //
+   // PSO for shadow map pass.
+   //
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC smapPsoDesc = psoDesc;
+    smapPsoDesc.RasterizerState.DepthBias = 100000;
+    smapPsoDesc.RasterizerState.DepthBiasClamp = 0.0f;
+    smapPsoDesc.RasterizerState.SlopeScaledDepthBias = 1.0f;
+    smapPsoDesc.pRootSignature = rootSignature.Get();
+    smapPsoDesc.VS =
+    {
+        reinterpret_cast<BYTE*>(shaders["shadowVS"]->GetBufferPointer()),
+        shaders["shadowVS"]->GetBufferSize()
+    };
+    smapPsoDesc.PS =
+    {
+        reinterpret_cast<BYTE*>(shaders["shadowOpaquePS"]->GetBufferPointer()),
+        shaders["shadowOpaquePS"]->GetBufferSize()
+    };
+
+    // Shadow map pass does not have a render target.
+    smapPsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
+    smapPsoDesc.NumRenderTargets = 0;
+    ThrowIfFailed(d3dDevice->CreateGraphicsPipelineState(&smapPsoDesc, IID_PPV_ARGS(&(*psos)["shadow_opaque"])));
+
+    //
+    // PSO for debug layer.
+    //
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC debugPsoDesc = psoDesc;
+    debugPsoDesc.pRootSignature = rootSignature.Get();
+    debugPsoDesc.VS =
+    {
+        reinterpret_cast<BYTE*>(shaders["debugVS"]->GetBufferPointer()),
+        shaders["debugVS"]->GetBufferSize()
+    };
+    debugPsoDesc.PS =
+    {
+        reinterpret_cast<BYTE*>(shaders["debugPS"]->GetBufferPointer()),
+        shaders["debugPS"]->GetBufferSize()
+    };
+    ThrowIfFailed(d3dDevice->CreateGraphicsPipelineState(&debugPsoDesc, IID_PPV_ARGS(&(*psos)["debug"])));
+
+    //
     // PSO for sky.
     //
     D3D12_GRAPHICS_PIPELINE_STATE_DESC skyPsoDesc = psoDesc;
