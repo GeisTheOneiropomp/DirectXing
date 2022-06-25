@@ -161,6 +161,7 @@
     <ClCompile Include="Samplers.cpp" />
     <ClCompile Include="ShadersLoader.cpp" />
     <ClCompile Include="ShadowMap.cpp" />
+    <ClCompile Include="SHUtils.cpp" />
     <ClCompile Include="SSAmbientOclusion.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
   </ItemGroup>
@@ -193,6 +194,7 @@
     <ClInclude Include="RenderItemBuilder.h" />
     <ClInclude Include="ShadersLoader.h" />
     <ClInclude Include="ShadowMap.h" />
+    <ClInclude Include="SHUtils.h" />
     <ClInclude Include="SSAmbientOclusion.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="Vertex.h" />

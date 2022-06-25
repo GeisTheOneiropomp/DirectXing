@@ -22,15 +22,18 @@
     <Filter Include="Header Files\LoadersAndBuilders">
       <UniqueIdentifier>{e1f8f203-f6fb-4679-928b-0047bf70de3c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Utilities">
+      <UniqueIdentifier>{0ae4fb2f-5e50-4e78-99f7-b8cbf9096ebc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utilities">
+      <UniqueIdentifier>{d987b6e4-fac4-484f-b8d7-eb381a015dcd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BoxApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Utilities\d3dApp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utilities\d3dUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Utilities\GameTimer.cpp">
@@ -93,12 +96,15 @@
     <ClCompile Include="Samplers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Utilities\d3dUtil.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="SHUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Utilities\d3dApp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utilities\d3dUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Utilities\GameTimer.h">
@@ -187,6 +193,12 @@
     </ClInclude>
     <ClInclude Include="AmbientOcclusionConstants.h">
       <Filter>Header Files\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utilities\d3dUtil.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="SHUtils.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
