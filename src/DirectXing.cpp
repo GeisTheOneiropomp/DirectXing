@@ -25,7 +25,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 }
 
 DirectXing::DirectXing(HINSTANCE hInstance)
-: D3DApp(hInstance) 
+: BaseApp(hInstance)
 {
     mBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
     mBounds.Radius= sqrtf(10.0f * 10.0f + 15.0f * 15.0f);
@@ -37,7 +37,7 @@ DirectXing::~DirectXing()
 
 bool DirectXing::Initialize()
 {
-    if(!D3DApp::Initialize())
+    if(!BaseApp::Initialize())
 		return false;
 		
     // Reset the command list to prep for initialization commands.
@@ -75,7 +75,7 @@ bool DirectXing::Initialize()
 
 void DirectXing::OnResize()
 {
-	D3DApp::OnResize();
+    BaseApp::OnResize();
 
     // The window resized, so update the aspect ratio and recompute the projection matrix.
     mCamera.SetLens(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);

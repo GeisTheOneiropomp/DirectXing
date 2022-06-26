@@ -1,4 +1,4 @@
-#include "../Utilities/d3dApp.h"
+#include "../Utilities/BaseApp.h"
 #include "../Utilities/MathHelper.h"
 #include "../Utilities/UploadBuffer.h"
 #include "../Utilities/Camera.h"
@@ -29,7 +29,7 @@ struct VertexColor
     XMFLOAT4 Color;
 };
 
-class DirectXing : public D3DApp
+class DirectXing : public BaseApp
 {
 public:
     DirectXing(HINSTANCE hInstance);

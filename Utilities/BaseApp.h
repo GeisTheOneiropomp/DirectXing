@@ -13,18 +13,18 @@
 #pragma comment(lib, "D3D12.lib")
 #pragma comment(lib, "dxgi.lib")
 
-class D3DApp
+class BaseApp
 {
 protected:
 
-    D3DApp(HINSTANCE hInstance);
-    D3DApp(const D3DApp& rhs) = delete;
-    D3DApp& operator=(const D3DApp& rhs) = delete;
-    virtual ~D3DApp();
+    BaseApp(HINSTANCE hInstance);
+    BaseApp(const BaseApp& rhs) = delete;
+    BaseApp& operator=(const BaseApp& rhs) = delete;
+    virtual ~BaseApp();
 
 public:
 
-    static D3DApp* GetApp();
+    static BaseApp* GetApp();
     
 	HINSTANCE AppInst()const;
 	HWND      MainWnd()const;
@@ -70,7 +70,7 @@ protected:
 
 protected:
 
-    static D3DApp* mApp;
+    static BaseApp* mApp;
 
     HINSTANCE mhAppInst = nullptr; // application instance handle
     HWND      mhMainWnd = nullptr; // main window handle
