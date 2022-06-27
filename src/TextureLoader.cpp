@@ -1,5 +1,5 @@
 #include "TextureLoader.h"
-#include "../Utilities/d3dUtil.h"
+#include "../Utilities/DirectXUtilities.h"
 
 void TextureLoader::Load(
     Microsoft::WRL::ComPtr<ID3D12Device> d3dDevice,

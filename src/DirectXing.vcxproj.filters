@@ -96,7 +96,7 @@
     <ClCompile Include="Samplers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utilities\d3dUtil.cpp">
+    <ClCompile Include="..\Utilities\DirectXUtilities.cpp">
       <Filter>Source Files\Utilities</Filter>
     </ClCompile>
     <ClCompile Include="SHUtils.cpp">
@@ -194,7 +194,7 @@
     <ClInclude Include="AmbientOcclusionConstants.h">
       <Filter>Header Files\Constants</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utilities\d3dUtil.h">
+    <ClInclude Include="..\Utilities\DirectXUtilities.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
     <ClInclude Include="SHUtils.h">

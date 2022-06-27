@@ -1,6 +1,6 @@
 #pragma once
 #include "../Utilities/MathHelper.h"
-#include "../Utilities/d3dUtil.h"
+#include "../Utilities/DirectXUtilities.h"
 #include "ConfigConstants.h"
 using namespace DirectX;
 

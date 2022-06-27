@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Utilities/d3dUtil.h"
+#include "../Utilities/DirectXUtilities.h"
 #include "../Utilities/MathHelper.h"
 #include "../Utilities/UploadBuffer.h"
 #include "ObjectConstants.h"

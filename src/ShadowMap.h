@@ -1,7 +1,7 @@
 #pragma once
 #include <d3d12.h>
 #include "../Utilities/d3dx12.h"
-#include "../Utilities/d3dUtil.h"
+#include "../Utilities/DirectXUtilities.h"
 #include <wrl.h>
 
 class ShadowMap

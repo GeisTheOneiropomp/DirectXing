@@ -1,4 +1,4 @@
-#include "../Utilities/d3dUtil.h"
+#include "../Utilities/DirectXUtilities.h"
 #include "DirectXing.h"
 void DirectXing::BuildDescriptorHeap()
 {

@@ -477,7 +477,7 @@ void DirectXing::UpdateMainPassCB(const GameTimer& gt)
 
 void DirectXing::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
 {
-    UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+    UINT objCBByteSize = DirectXUtilities::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
     auto objectCB = mCurrFrameResource->ObjectCB->Resource();
     // For each render item...
@@ -538,7 +538,7 @@ void DirectXing::DrawSceneToShadowMap()
     mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mShadowMap->Resource(),
         D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
-    UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
+    UINT passCBByteSize = DirectXUtilities::CalcConstantBufferByteSize(sizeof(PassConstants));
 
     // Clear the back buffer and depth buffer.
     mCommandList->ClearDepthStencilView(mShadowMap->Dsv(),

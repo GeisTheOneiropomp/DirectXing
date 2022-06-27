@@ -142,7 +142,7 @@
   <ItemGroup>
     <ClCompile Include="..\Utilities\Camera.cpp" />
     <ClCompile Include="..\Utilities\BaseApp.cpp" />
-    <ClCompile Include="..\Utilities\d3dUtil.cpp" />
+    <ClCompile Include="..\Utilities\DirectXUtilities.cpp" />
     <ClCompile Include="..\Utilities\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Utilities\GameTimer.cpp" />
     <ClCompile Include="..\Utilities\GeometryGenerator.cpp" />
@@ -168,7 +168,7 @@
   <ItemGroup>
     <ClInclude Include="..\Utilities\Camera.h" />
     <ClInclude Include="..\Utilities\BaseApp.h" />
-    <ClInclude Include="..\Utilities\d3dUtil.h" />
+    <ClInclude Include="..\Utilities\DirectXUtilities.h" />
     <ClInclude Include="..\Utilities\DDSTextureLoader.h" />
     <ClInclude Include="..\Utilities\GameTimer.h" />
     <ClInclude Include="..\Utilities\GeometryGenerator.h" />

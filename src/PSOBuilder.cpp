@@ -1,6 +1,6 @@
 #include "DirectXing.h"
 #include "../Utilities/d3dx12.h"
-#include "../Utilities/d3dUtil.h"
+#include "../Utilities/DirectXUtilities.h"
 
 void DirectXing::BuildPSOs()
 {

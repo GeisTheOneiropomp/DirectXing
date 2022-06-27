@@ -1,7 +1,7 @@
+#include "Vertex.h"
 #include "GeometryLoader.h"
 #include "../Utilities/GeometryGenerator.h"
-#include "Vertex.h"
-#include "../Utilities/d3dUtil.h"
+#include "../Utilities/DirectXUtilities.h"
 void GeometryLoader::Load(Microsoft::WRL::ComPtr<ID3D12Device> d3dDevice,
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList, 
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>* geometries) {
@@ -117,10 +117,10 @@ void GeometryLoader::Load(Microsoft::WRL::ComPtr<ID3D12Device> d3dDevice,
     ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
     CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
-    geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(d3dDevice.Get(),
+    geo->VertexBufferGPU = DirectXUtilities::CreateDefaultBuffer(d3dDevice.Get(),
         commandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
 
-    geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(d3dDevice.Get(),
+    geo->IndexBufferGPU = DirectXUtilities::CreateDefaultBuffer(d3dDevice.Get(),
         commandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
 
     geo->VertexByteStride = sizeof(DirVertex);
