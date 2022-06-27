@@ -2,10 +2,10 @@
 #include "Utilities/MathHelper.h"
 #include "DirectXController/UploadBuffer.h"
 #include "Models/Camera.h"
+#include "Models/ShadowMap.h"
 #include "DirectXController/Samplers.h"
 #include "DirectXController/RenderLayer.h"
 #include "DirectXController/Constants/PassConstants.h"
-#include "Models/ShadowMap.h"
 #include "Models/SSAmbientOclusion.h"
 #include "DirectXController/FrameResource.h"
 #include "DirectXController/RenderItem.h"
@@ -51,13 +51,11 @@ private:
     void BuildShapeGeometry();
     void BuildAndSetPSOs();
     void BuildMaterials();
-    void UpdateObjectCBs(const GameTimer& gt);
-    void UpdateMainPassCB(const GameTimer& gt);
-    void UpdateMaterialCBs(const GameTimer& gt);
+
     void BuildRenderItems();
     void BuildFrameResources();
     void BuildDescriptorHeap();
-    void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
+    void DrawRenderItemsInstructions(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
     void ExecuteInitializeCommands();
 
     void SetBounds();
@@ -67,14 +65,18 @@ private:
     void LoadTextures();
 
     void MakeShadowMap();
+    void DrawSceneToShadowMapInstructions();
+    void BuildSsaoRootSignature();
+    void DrawNormalsAndDepthCommands();
+
+    void UpdateLights(const GameTimer& gt);
+    void UpdateObjectCBs(const GameTimer& gt);
+    void UpdateMainPassCB(const GameTimer& gt);
+    void UpdateMaterialCBs(const GameTimer& gt);
+    void UpdateSsaoCB(const GameTimer& gt);
     void UpdateShadowPassCB(const GameTimer& gt);
     void UpdateShadowTransform(const GameTimer& gt);
-    void DrawSceneToShadowMap();
-
-    void UpdateSsaoCB(const GameTimer& gt);
-    void BuildSsaoRootSignature();
-    void DrawNormalsAndDepth();
-
+    void RenderBeforeUpdate();
 
     CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuSrv(int index)const;
     CD3DX12_GPU_DESCRIPTOR_HANDLE GetGpuSrv(int index)const;
@@ -93,7 +95,6 @@ private:
     int mCurrFrameResourceIndex = 0;
 
     UINT mCbvSrvDescriptorSize = 0;
-
 
     std::vector<std::unique_ptr<RenderItem>> mAllRitems;
     std::vector<RenderItem*> mRitemLayer[(int)RenderLayer::Count];

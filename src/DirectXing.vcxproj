@@ -140,9 +140,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DirectXController\GraphicsController\DrawNormalsAndDepthCommands.cpp" />
+    <ClCompile Include="DirectXController\GraphicsController\DrawRenderItemsInstructions.cpp" />
+    <ClCompile Include="DirectXController\GraphicsController\DrawScenetoShadowMapInstructions.cpp" />
     <ClCompile Include="DirectXController\GraphicsController\ExecuteInitializeCommands.cpp" />
+    <ClCompile Include="DirectXController\PlayerController\PlayerController.cpp" />
+    <ClCompile Include="DirectXController\UpdateController\RenderBeforeUpdate.cpp" />
+    <ClCompile Include="DirectXController\UpdateController\UpdateLights.cpp" />
+    <ClCompile Include="DirectXController\UpdateController\UpdateMainPassCB.cpp" />
+    <ClCompile Include="DirectXController\UpdateController\UpdateMaterialCBs.cpp" />
+    <ClCompile Include="DirectXController\UpdateController\UpdateObjectCBs.cpp" />
+    <ClCompile Include="DirectXController\UpdateController\UpdateShadowPassCB.cpp" />
+    <ClCompile Include="DirectXController\UpdateController\UpdateShadowTransform.cpp" />
+    <ClCompile Include="DirectXController\UpdateController\UpdateSsaoCB.cpp" />
     <ClCompile Include="Loaders\BuildFrameResources.cpp" />
     <ClCompile Include="Loaders\BuildRootSignature.cpp" />
+    <ClCompile Include="Loaders\BuildShadowMap.cpp" />
     <ClCompile Include="Loaders\BuildSSAORootSignature.cpp" />
     <ClCompile Include="Loaders\LoadCamera.cpp" />
     <ClCompile Include="Loaders\LoadShadowMap.cpp" />
