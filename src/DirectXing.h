@@ -4,13 +4,8 @@
 #include "Models/Camera.h"
 #include "DirectXController/Samplers.h"
 #include "DirectXController/RenderLayer.h"
-#include "Loaders/TextureLoader.h"
-#include "Loaders/MaterialLoader.h"
-#include "Loaders/GeometryLoader.h"
-#include "Loaders/RenderItemBuilder.h"
 #include "DirectXController/Constants/PassConstants.h"
 #include "Models/ShadowMap.h"
-#include "Loaders/ShadersLoader.h"
 #include "Models/SSAmbientOclusion.h"
 #include "DirectXController/FrameResource.h"
 #include "DirectXController/RenderItem.h"
@@ -54,10 +49,8 @@ private:
     void BuildRootSignature();
     void BuildShadersAndInputLayout();
     void BuildShapeGeometry();
-    void BuildPSOs();
-    void AnimateMaterials(const GameTimer& gt);
+    void BuildAndSetPSOs();
     void BuildMaterials();
-    void LoadTextures();
     void UpdateObjectCBs(const GameTimer& gt);
     void UpdateMainPassCB(const GameTimer& gt);
     void UpdateMaterialCBs(const GameTimer& gt);
@@ -65,6 +58,13 @@ private:
     void BuildFrameResources();
     void BuildDescriptorHeap();
     void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
+    void ExecuteInitializeCommands();
+
+    void SetBounds();
+    void LoadCamera();
+    void LoadShadowMap();
+    void LoadSSAmbientOcclusion();
+    void LoadTextures();
 
     void MakeShadowMap();
     void UpdateShadowPassCB(const GameTimer& gt);
@@ -74,6 +74,7 @@ private:
     void UpdateSsaoCB(const GameTimer& gt);
     void BuildSsaoRootSignature();
     void DrawNormalsAndDepth();
+
 
     CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuSrv(int index)const;
     CD3DX12_GPU_DESCRIPTOR_HANDLE GetGpuSrv(int index)const;
@@ -146,4 +147,5 @@ private:
     };
     XMFLOAT3 mRotatedLightDirections[3];
     DirectX::BoundingSphere mBounds;
+
 };

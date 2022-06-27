@@ -27,8 +27,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 DirectXing::DirectXing(HINSTANCE hInstance)
 : BaseApp(hInstance)
 {
-    mBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-    mBounds.Radius= sqrtf(10.0f * 10.0f + 15.0f * 15.0f);
+
 }
 
 DirectXing::~DirectXing()
@@ -37,17 +36,13 @@ DirectXing::~DirectXing()
 
 bool DirectXing::Initialize()
 {
-    if(!BaseApp::Initialize())
-		return false;
-		
-    // Reset the command list to prep for initialization commands.
+    if(!BaseApp::Initialize()) return false;
     ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
- 
-    mCamera.SetPosition(0.0f, 2.0f, -15.0f);
 
-    mShadowMap = std::make_unique<ShadowMap>(md3dDevice.Get(), 2048, 2048);
-    mSSAmbientOcclusion = std::make_unique<SSAmbientOcclusion>(md3dDevice.Get(),
-        mCommandList.Get(), mClientWidth, mClientHeight);
+    SetBounds();
+    LoadCamera();
+    LoadShadowMap();
+    LoadSSAmbientOcclusion();
 
     LoadTextures();
     BuildRootSignature();
@@ -58,17 +53,9 @@ bool DirectXing::Initialize()
     BuildMaterials();
     BuildRenderItems();
     BuildFrameResources();
-    BuildPSOs();
+    BuildAndSetPSOs();
 
-    mSSAmbientOcclusion->SetPSOs(mPSOs["ssao"].Get(), mPSOs["ssaoBlur"].Get());
-
-    // Execute the initialization commands.
-    ThrowIfFailed(mCommandList->Close());
-	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
-	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-
-    // Wait until initialization is complete.
-    FlushCommandQueue();
+    ExecuteInitializeCommands();
 
 	return true;
 }
@@ -77,13 +64,10 @@ void DirectXing::OnResize()
 {
     BaseApp::OnResize();
 
-    // The window resized, so update the aspect ratio and recompute the projection matrix.
     mCamera.SetLens(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
     if (mSSAmbientOcclusion != nullptr)
     {
         mSSAmbientOcclusion->OnResize(mClientWidth, mClientHeight);
-
-        // Resources changed, so need to rebuild descriptors.
         mSSAmbientOcclusion->RebuildDescriptors(mDepthStencilBuffer.Get());
     }
 }
@@ -120,7 +104,6 @@ void DirectXing::Update(const GameTimer& gt)
         XMStoreFloat3(&mRotatedLightDirections[i], lightDir);
     }
 
-    AnimateMaterials(gt);
     UpdateObjectCBs(gt);
     UpdateMaterialCBs(gt);
     UpdateShadowTransform(gt);
@@ -284,93 +267,6 @@ void DirectXing::OnKeyboardInput(const GameTimer& gt)
         mCamera.Strafe(10.0f * dt);
 
     mCamera.UpdateViewMatrix();
-}
-
-void DirectXing::AnimateMaterials(const GameTimer& gt)
-{
-
-}
-
-void DirectXing::BuildRootSignature()
-{
-    CD3DX12_DESCRIPTOR_RANGE texTable0;
-    texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 0, 0);
-
-    CD3DX12_DESCRIPTOR_RANGE texTable1;
-    texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 3, 0);
-
-    // Root parameter can be a table, root descriptor or root constants.
-    CD3DX12_ROOT_PARAMETER slotRootParameter[5];
-
-    // Create root CBVs.
-    slotRootParameter[0].InitAsConstantBufferView(0);
-    slotRootParameter[1].InitAsConstantBufferView(1);
-    slotRootParameter[2].InitAsShaderResourceView(0, 1);
-    slotRootParameter[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
-    slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
-
-    auto samplers = mSamplers.GetStaticSamplers();
-
-    // A root signature is an array of root parameters.
-    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(5, slotRootParameter,
-        (UINT)samplers.size(), samplers.data(),
-        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-    // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
-    ComPtr<ID3DBlob> serializedRootSig = nullptr;
-    ComPtr<ID3DBlob> errorBlob = nullptr;
-    HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-        serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
-
-    if (errorBlob != nullptr)
-    {
-        ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-    }
-    ThrowIfFailed(hr);
-
-    ThrowIfFailed(md3dDevice->CreateRootSignature(
-        0,
-        serializedRootSig->GetBufferPointer(),
-        serializedRootSig->GetBufferSize(),
-        IID_PPV_ARGS(mRootSignature.GetAddressOf())));
-}
-
-void DirectXing::BuildShadersAndInputLayout()
-{
-    ShadersLoader loader;
-    loader.Load(&mShaders, &mInputLayout);
-}
-
-void DirectXing::BuildMaterials()
-{
-    MaterialLoader loader;
-    loader.Load(&mMaterials);
-}
-
-void DirectXing::BuildShapeGeometry()
-{
-    GeometryLoader loader;
-    loader.Load(md3dDevice, mCommandList, &mGeometries);
-}
-
-void DirectXing::LoadTextures() {
-    TextureLoader loader;
-    loader.Load(md3dDevice, mCommandList, &mTextures);
-}
-
-void DirectXing::BuildRenderItems() {
-
-    RenderItemBuilder builder;
-    builder.Load(&mMaterials, &mGeometries, mRitemLayer, &mAllRitems);
-}
-
-void DirectXing::BuildFrameResources()
-{
-    for (int i = 0; i < CONFIG_CONST_NUM_FRAMES; ++i)
-    {
-        mFrameResources.push_back(std::make_unique<FrameResource>(md3dDevice.Get(),
-            2, (UINT)mAllRitems.size(), (UINT) mMaterials.size() ));
-    }
 }
 
 void DirectXing::UpdateObjectCBs(const GameTimer& gt)
@@ -599,84 +495,6 @@ void DirectXing::UpdateSsaoCB(const GameTimer& gt)
     currSsaoCB->CopyData(0, ssaoCB);
 }
 
-void DirectXing::BuildSsaoRootSignature()
-{
-    CD3DX12_DESCRIPTOR_RANGE texTable0;
-    texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 0);
-
-    CD3DX12_DESCRIPTOR_RANGE texTable1;
-    texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2, 0);
-
-    // Root parameter can be a table, root descriptor or root constants.
-    CD3DX12_ROOT_PARAMETER slotRootParameter[4];
-
-    // Perfomance TIP: Order from most frequent to least frequent.
-    slotRootParameter[0].InitAsConstantBufferView(0);
-    slotRootParameter[1].InitAsConstants(1, 1);
-    slotRootParameter[2].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
-    slotRootParameter[3].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
-
-    const CD3DX12_STATIC_SAMPLER_DESC pointClamp(
-        0, // shaderRegister
-        D3D12_FILTER_MIN_MAG_MIP_POINT, // filter
-        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
-        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
-        D3D12_TEXTURE_ADDRESS_MODE_CLAMP); // addressW
-
-    const CD3DX12_STATIC_SAMPLER_DESC linearClamp(
-        1, // shaderRegister
-        D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
-        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressU
-        D3D12_TEXTURE_ADDRESS_MODE_CLAMP,  // addressV
-        D3D12_TEXTURE_ADDRESS_MODE_CLAMP); // addressW
-
-    const CD3DX12_STATIC_SAMPLER_DESC depthMapSam(
-        2, // shaderRegister
-        D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
-        D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressU
-        D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressV
-        D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressW
-        0.0f,
-        0,
-        D3D12_COMPARISON_FUNC_LESS_EQUAL,
-        D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE);
-
-    const CD3DX12_STATIC_SAMPLER_DESC linearWrap(
-        3, // shaderRegister
-        D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
-        D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
-        D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
-        D3D12_TEXTURE_ADDRESS_MODE_WRAP); // addressW
-
-    std::array<CD3DX12_STATIC_SAMPLER_DESC, 4> staticSamplers =
-    {
-        pointClamp, linearClamp, depthMapSam, linearWrap
-    };
-
-    // A root signature is an array of root parameters.
-    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
-        (UINT)staticSamplers.size(), staticSamplers.data(),
-        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-    // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
-    ComPtr<ID3DBlob> serializedRootSig = nullptr;
-    ComPtr<ID3DBlob> errorBlob = nullptr;
-    HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-        serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
-
-    if (errorBlob != nullptr)
-    {
-        ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-    }
-    ThrowIfFailed(hr);
-
-    ThrowIfFailed(md3dDevice->CreateRootSignature(
-        0,
-        serializedRootSig->GetBufferPointer(),
-        serializedRootSig->GetBufferSize(),
-        IID_PPV_ARGS(mSsaoRootSignature.GetAddressOf())));
-}
-
 void DirectXing::UpdateShadowTransform(const GameTimer& gt)
 {
     // Only the first "main" light casts a shadow.
@@ -769,32 +587,4 @@ void DirectXing::DrawNormalsAndDepth()
     // Change back to GENERIC_READ so we can read the texture in a shader.
     mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(normalMap,
         D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
-}
-
-CD3DX12_CPU_DESCRIPTOR_HANDLE DirectXing::GetCpuSrv(int index) const
-{
-    auto srv = CD3DX12_CPU_DESCRIPTOR_HANDLE(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-    srv.Offset(index, mCbvSrvUavDescriptorSize);
-    return srv;
-}
-
-CD3DX12_GPU_DESCRIPTOR_HANDLE DirectXing::GetGpuSrv(int index)const
-{
-    auto srv = CD3DX12_GPU_DESCRIPTOR_HANDLE(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-    srv.Offset(index, mCbvSrvUavDescriptorSize);
-    return srv;
-}
-
-CD3DX12_CPU_DESCRIPTOR_HANDLE DirectXing::GetDsv(int index)const
-{
-    auto dsv = CD3DX12_CPU_DESCRIPTOR_HANDLE(mDsvHeap->GetCPUDescriptorHandleForHeapStart());
-    dsv.Offset(index, mDsvDescriptorSize);
-    return dsv;
-}
-
-CD3DX12_CPU_DESCRIPTOR_HANDLE DirectXing::GetRtv(int index)const
-{
-    auto rtv = CD3DX12_CPU_DESCRIPTOR_HANDLE(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
-    rtv.Offset(index, mRtvDescriptorSize);
-    return rtv;
 }

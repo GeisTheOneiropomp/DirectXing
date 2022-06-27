@@ -1,11 +1,10 @@
-#include "GeometryLoader.h"
+#include "../DirectXing.h"
 
 #include "../DirectXController/DirVertex.h"
 #include "../Models/GeometryGenerator.h"
 #include "../Utilities/DirectXUtilities.h"
-void GeometryLoader::Load(Microsoft::WRL::ComPtr<ID3D12Device> d3dDevice,
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList, 
-    std::unordered_map<std::string, std::unique_ptr<MeshGeometry>>* geometries) {
+
+void DirectXing::BuildShapeGeometry() {
 
     GeometryGenerator geoGen;
     GeometryGenerator::MeshData box = geoGen.CreateBox(1.5f, 0.5f, 1.5f, 3);
@@ -13,25 +12,15 @@ void GeometryLoader::Load(Microsoft::WRL::ComPtr<ID3D12Device> d3dDevice,
     GeometryGenerator::MeshData sphere = geoGen.CreateSphere(0.5f, 20, 20);
     GeometryGenerator::MeshData cylinder = geoGen.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20);
 
-    //
-    // We are concatenating all the geometry into one big vertex/index buffer.  So
-    // define the regions in the buffer each submesh covers.
-    //
-
-    // Cache the vertex offsets to each object in the concatenated vertex buffer.
     UINT boxVertexOffset = 0;
     UINT gridVertexOffset = (UINT)box.Vertices.size();
     UINT sphereVertexOffset = gridVertexOffset + (UINT)grid.Vertices.size();
     UINT cylinderVertexOffset = sphereVertexOffset + (UINT)sphere.Vertices.size();
 
-    // Cache the starting index for each object in the concatenated index buffer.
     UINT boxIndexOffset = 0;
     UINT gridIndexOffset = (UINT)box.Indices32.size();
     UINT sphereIndexOffset = gridIndexOffset + (UINT)grid.Indices32.size();
     UINT cylinderIndexOffset = sphereIndexOffset + (UINT)sphere.Indices32.size();
-
-    // Define the SubmeshGeometry that cover different 
-    // regions of the vertex/index buffers.
 
     Submesh boxSubmesh;
     boxSubmesh.IndexCount = (UINT)box.Indices32.size();
@@ -52,11 +41,6 @@ void GeometryLoader::Load(Microsoft::WRL::ComPtr<ID3D12Device> d3dDevice,
     cylinderSubmesh.IndexCount = (UINT)cylinder.Indices32.size();
     cylinderSubmesh.StartIndexLocation = cylinderIndexOffset;
     cylinderSubmesh.BaseVertexLocation = cylinderVertexOffset;
-
-    //
-    // Extract the vertex elements we are interested in and pack the
-    // vertices of all the meshes into one vertex buffer.
-    //
 
     auto totalVertexCount =
         box.Vertices.size() +
@@ -118,11 +102,11 @@ void GeometryLoader::Load(Microsoft::WRL::ComPtr<ID3D12Device> d3dDevice,
     ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
     CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
-    geo->VertexBufferGPU = DirectXUtilities::CreateDefaultBuffer(d3dDevice.Get(),
-        commandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+    geo->VertexBufferGPU = DirectXUtilities::CreateDefaultBuffer(md3dDevice.Get(),
+        mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
 
-    geo->IndexBufferGPU = DirectXUtilities::CreateDefaultBuffer(d3dDevice.Get(),
-        commandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
+    geo->IndexBufferGPU = DirectXUtilities::CreateDefaultBuffer(md3dDevice.Get(),
+        mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
 
     geo->VertexByteStride = sizeof(DirVertex);
     geo->VertexBufferByteSize = vbByteSize;
@@ -134,5 +118,5 @@ void GeometryLoader::Load(Microsoft::WRL::ComPtr<ID3D12Device> d3dDevice,
     geo->DrawArgs["sphere"] = sphereSubmesh;
     geo->DrawArgs["cylinder"] = cylinderSubmesh;
 
-    (*geometries)[geo->Name] = std::move(geo);
+    mGeometries[geo->Name] = std::move(geo);
 }

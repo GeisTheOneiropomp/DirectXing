@@ -140,8 +140,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DirectXController\GraphicsController\ExecuteInitializeCommands.cpp" />
+    <ClCompile Include="Loaders\BuildFrameResources.cpp" />
+    <ClCompile Include="Loaders\BuildRootSignature.cpp" />
+    <ClCompile Include="Loaders\BuildSSAORootSignature.cpp" />
+    <ClCompile Include="Loaders\LoadCamera.cpp" />
+    <ClCompile Include="Loaders\LoadShadowMap.cpp" />
+    <ClCompile Include="Loaders\LoadSSAmbientOcclusion.cpp" />
     <ClCompile Include="Models\Camera.cpp" />
     <ClCompile Include="DirectXController\BaseApp.cpp" />
+    <ClCompile Include="Loaders\SetBounds.cpp" />
     <ClCompile Include="Utilities\DirectXUtilities.cpp" />
     <ClCompile Include="ext\DDSTextureLoader.cpp" />
     <ClCompile Include="Utilities\GameTimer.cpp" />
@@ -151,12 +159,12 @@
     <ClCompile Include="DirectXing.cpp" />
     <ClCompile Include="Loaders\DescriptorHeapBuilder.cpp" />
     <ClCompile Include="DirectXController\FrameResource.cpp" />
-    <ClCompile Include="Loaders\GeometryLoader.cpp" />
-    <ClCompile Include="Loaders\MaterialLoader.cpp" />
-    <ClCompile Include="Loaders\PSOBuilder.cpp" />
-    <ClCompile Include="Loaders\RenderItemBuilder.cpp" />
+    <ClCompile Include="Loaders\BuildShapeGeometry.cpp" />
+    <ClCompile Include="Loaders\BuildMaterials.cpp" />
+    <ClCompile Include="Loaders\BuildAndSetPSOs.cpp" />
+    <ClCompile Include="Loaders\BuildRenderItems.cpp" />
     <ClCompile Include="DirectXController\Samplers.cpp" />
-    <ClCompile Include="Loaders\ShadersLoader.cpp" />
+    <ClCompile Include="Loaders\BuildShadersAndInputLayout.cpp" />
     <ClCompile Include="Models\ShadowMap.cpp" />
     <ClCompile Include="Utilities\SHUtils.cpp" />
     <ClCompile Include="Models\SSAmbientOclusion.cpp" />
@@ -183,17 +191,12 @@
     <ClInclude Include="DirectXing.h" />
     <ClInclude Include="DirectXController\Constants\ConfigConstants.h" />
     <ClInclude Include="DirectXController\FrameResource.h" />
-    <ClInclude Include="Loaders\GeometryLoader.h" />
-    <ClInclude Include="Loaders\MaterialLoader.h" />
     <ClInclude Include="DirectXController\Constants\ObjectConstants.h" />
     <ClInclude Include="DirectXController\Constants\PassConstants.h" />
     <ClInclude Include="DirectXController\RenderItem.h" />
-    <ClInclude Include="Loaders\RenderItemBuilder.h" />
-    <ClInclude Include="Loaders\ShadersLoader.h" />
     <ClInclude Include="Models\ShadowMap.h" />
     <ClInclude Include="Utilities\SHUtils.h" />
     <ClInclude Include="Models\SSAmbientOclusion.h" />
-    <ClInclude Include="Loaders\TextureLoader.h" />
     <ClInclude Include="DirectXController\DirVertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

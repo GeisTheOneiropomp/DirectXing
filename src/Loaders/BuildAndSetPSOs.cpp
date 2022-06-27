@@ -2,7 +2,7 @@
 #include "../ext/d3dx12.h"
 #include "../Utilities/DirectXUtilities.h"
 
-void DirectXing::BuildPSOs()
+void DirectXing::BuildAndSetPSOs()
 {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC basePsoDesc;
 
@@ -30,18 +30,13 @@ void DirectXing::BuildPSOs()
     basePsoDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
     basePsoDesc.DSVFormat = mDepthStencilFormat;
 
-    //
     // PSO for opaque objects.
-    //
-
     D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc = basePsoDesc;
     opaquePsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_EQUAL;
     opaquePsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
     ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
 
-    //
-    // PSO for shadow map pass.
-    //
+    // PSO for shadow map.
     D3D12_GRAPHICS_PIPELINE_STATE_DESC smapPsoDesc = basePsoDesc;
     smapPsoDesc.RasterizerState.DepthBias = 100000;
     smapPsoDesc.RasterizerState.DepthBiasClamp = 0.0f;
@@ -63,9 +58,7 @@ void DirectXing::BuildPSOs()
     smapPsoDesc.NumRenderTargets = 0;
     ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&smapPsoDesc, IID_PPV_ARGS(&mPSOs["shadow_opaque"])));
 
-    //
     // PSO for debug layer.
-    //
     D3D12_GRAPHICS_PIPELINE_STATE_DESC debugPsoDesc = basePsoDesc;
     debugPsoDesc.pRootSignature = mRootSignature.Get();
     debugPsoDesc.VS =
@@ -80,9 +73,7 @@ void DirectXing::BuildPSOs()
     };
     ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&debugPsoDesc, IID_PPV_ARGS(&mPSOs["debug"])));
 
-    //
     // PSO for drawing normals.
-    //
     D3D12_GRAPHICS_PIPELINE_STATE_DESC drawNormalsPsoDesc = basePsoDesc;
     drawNormalsPsoDesc.VS =
     {
@@ -100,9 +91,7 @@ void DirectXing::BuildPSOs()
     drawNormalsPsoDesc.DSVFormat = mDepthStencilFormat;
     ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&drawNormalsPsoDesc, IID_PPV_ARGS(&mPSOs["drawNormals"])));
 
-    //
     // PSO for SSAO.
-    //
     D3D12_GRAPHICS_PIPELINE_STATE_DESC ssaoPsoDesc = basePsoDesc;
     ssaoPsoDesc.InputLayout = { nullptr, 0 };
     ssaoPsoDesc.pRootSignature = mSsaoRootSignature.Get();
@@ -126,9 +115,7 @@ void DirectXing::BuildPSOs()
     ssaoPsoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
     ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&ssaoPsoDesc, IID_PPV_ARGS(&mPSOs["ssao"])));
 
-    //
     // PSO for SSAO blur.
-    //
     D3D12_GRAPHICS_PIPELINE_STATE_DESC ssaoBlurPsoDesc = ssaoPsoDesc;
     ssaoBlurPsoDesc.VS =
     {
@@ -142,17 +129,10 @@ void DirectXing::BuildPSOs()
     };
     ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&ssaoBlurPsoDesc, IID_PPV_ARGS(&mPSOs["ssaoBlur"])));
 
-    //
     // PSO for sky.
-    //
     D3D12_GRAPHICS_PIPELINE_STATE_DESC skyPsoDesc = basePsoDesc;
 
-    // The camera is inside the sky sphere, so just turn off culling.
     skyPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-
-    // Make sure the depth function is LESS_EQUAL and not just LESS.  
-    // Otherwise, the normalized depth values at z = 1 (NDC) will 
-    // fail the depth test if the depth buffer was cleared to 1.
     skyPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
     skyPsoDesc.pRootSignature = mRootSignature.Get();
     skyPsoDesc.VS =
@@ -166,4 +146,5 @@ void DirectXing::BuildPSOs()
         mShaders["skyPS"]->GetBufferSize()
     };
     ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&mPSOs["sky"])));
+    mSSAmbientOcclusion->SetPSOs(mPSOs["ssao"].Get(), mPSOs["ssaoBlur"].Get());
 }

@@ -1,7 +1,7 @@
-#include "MaterialLoader.h"
+#include "../DirectXing.h"
 #include <DirectXColors.h>
 
-void MaterialLoader::Load(std::unordered_map<std::string, std::unique_ptr<Material>>* materials)
+void DirectXing::BuildMaterials()
 {
     auto bricks0 = std::make_unique<Material>();
     bricks0->Name = "bricks0";
@@ -39,9 +39,9 @@ void MaterialLoader::Load(std::unordered_map<std::string, std::unique_ptr<Materi
     sky->FresnelR0 = DirectX::XMFLOAT3::XMFLOAT3(0.1f, 0.1f, 0.1f);
     sky->Roughness = 1.0f;
 
-    (*materials)[bricks0->Name] = std::move(bricks0);
-    (*materials)[mirror0->Name] = std::move(mirror0);
-    (*materials)[tile0->Name] = std::move(tile0);
-    (*materials)[sky->Name] = std::move(sky);
+    mMaterials[bricks0->Name] = std::move(bricks0);
+    mMaterials[mirror0->Name] = std::move(mirror0);
+    mMaterials[tile0->Name] = std::move(tile0);
+    mMaterials[sky->Name] = std::move(sky);
 
 }

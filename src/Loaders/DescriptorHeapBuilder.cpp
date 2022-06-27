@@ -20,7 +20,6 @@ void DirectXing::BuildDescriptorHeap()
 
     CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
-
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -103,4 +102,32 @@ void DirectXing::BuildDescriptorHeap()
         GetRtv(SwapChainBufferCount),
         mCbvSrvUavDescriptorSize,
         mRtvDescriptorSize);
+}
+
+CD3DX12_CPU_DESCRIPTOR_HANDLE DirectXing::GetCpuSrv(int index) const
+{
+    auto srv = CD3DX12_CPU_DESCRIPTOR_HANDLE(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+    srv.Offset(index, mCbvSrvUavDescriptorSize);
+    return srv;
+}
+
+CD3DX12_GPU_DESCRIPTOR_HANDLE DirectXing::GetGpuSrv(int index)const
+{
+    auto srv = CD3DX12_GPU_DESCRIPTOR_HANDLE(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+    srv.Offset(index, mCbvSrvUavDescriptorSize);
+    return srv;
+}
+
+CD3DX12_CPU_DESCRIPTOR_HANDLE DirectXing::GetDsv(int index)const
+{
+    auto dsv = CD3DX12_CPU_DESCRIPTOR_HANDLE(mDsvHeap->GetCPUDescriptorHandleForHeapStart());
+    dsv.Offset(index, mDsvDescriptorSize);
+    return dsv;
+}
+
+CD3DX12_CPU_DESCRIPTOR_HANDLE DirectXing::GetRtv(int index)const
+{
+    auto rtv = CD3DX12_CPU_DESCRIPTOR_HANDLE(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
+    rtv.Offset(index, mRtvDescriptorSize);
+    return rtv;
 }
