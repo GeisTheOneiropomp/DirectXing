@@ -1,7 +1,7 @@
 #pragma once
 #include "../Utilities/MathHelper.h"
 #include "../Utilities/DirectXUtilities.h"
-#include "ConfigConstants.h"
+#include "Constants/ConfigConstants.h"
 using namespace DirectX;
 
 // Lightweight structure stores parameters to draw a shape.  This will

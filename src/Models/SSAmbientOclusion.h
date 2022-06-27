@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FrameResource.h"
+#include "../DirectXController/FrameResource.h"
 
 class SSAmbientOcclusion
 {

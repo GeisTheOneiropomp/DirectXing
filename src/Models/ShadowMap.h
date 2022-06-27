@@ -1,6 +1,6 @@
 #pragma once
 #include <d3d12.h>
-#include "../Utilities/d3dx12.h"
+#include "../ext/d3dx12.h"
 #include "../Utilities/DirectXUtilities.h"
 #include <wrl.h>
 

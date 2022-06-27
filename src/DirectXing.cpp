@@ -1,5 +1,5 @@
 #include "DirectXing.h"
-#include "../Utilities/GeometryGenerator.h"
+#include "models/GeometryGenerator.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 				   PSTR cmdLine, int showCmd)

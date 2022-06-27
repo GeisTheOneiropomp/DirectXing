@@ -1,5 +1,5 @@
-#include "DirectXing.h"
-#include "../Utilities/d3dx12.h"
+#include "../DirectXing.h"
+#include "../ext/d3dx12.h"
 #include "../Utilities/DirectXUtilities.h"
 
 void DirectXing::BuildPSOs()

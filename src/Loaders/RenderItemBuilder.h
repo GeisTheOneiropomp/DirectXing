@@ -3,10 +3,10 @@
 #include <unordered_map>
 #include <d3d12.h>
 #include <memory>
-#include "../Utilities/Material.h"
-#include "../Utilities/MeshGeometry.h"
-#include "RenderItem.h"
-#include "../Utilities/RenderLayer.h"
+#include "RenderItemBuilder.h"
+#include "../DirectXController/Material.h"
+#include "../DirectXController/RenderItem.h"
+#include "../DirectXController/RenderLayer.h"
 
 class RenderItemBuilder
 {

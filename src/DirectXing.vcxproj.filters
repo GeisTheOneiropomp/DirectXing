@@ -33,102 +33,93 @@
     <ClCompile Include="DirectXing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utilities\BaseApp.cpp">
+    <ClCompile Include="DiretXController\BaseApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utilities\GameTimer.cpp">
+    <ClCompile Include="Utilities\GameTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utilities\MathHelper.cpp">
+    <ClCompile Include="Utilities\MathHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FrameResource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utilities\GeometryGenerator.cpp">
+    <ClCompile Include="Models\GeometryGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utilities\Camera.cpp">
+    <ClCompile Include="Models\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utilities\Material.cpp">
+    <ClCompile Include="DirectXController\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utilities\Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utilities\Light.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utilities\MeshGeometry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureLoader.cpp">
+    <ClCompile Include="Loaders\TextureLoader.cpp">
       <Filter>Source Files\Loaders</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utilities\DDSTextureLoader.cpp">
+    <ClCompile Include="ext\DDSTextureLoader.cpp">
       <Filter>Source Files\Loaders</Filter>
     </ClCompile>
-    <ClCompile Include="MaterialLoader.cpp">
+    <ClCompile Include="Loaders\MaterialLoader.cpp">
       <Filter>Source Files\Loaders</Filter>
     </ClCompile>
-    <ClCompile Include="GeometryLoader.cpp">
+    <ClCompile Include="Loaders\GeometryLoader.cpp">
       <Filter>Source Files\Loaders</Filter>
     </ClCompile>
-    <ClCompile Include="PSOBuilder.cpp">
+    <ClCompile Include="Loaders\PSOBuilder.cpp">
       <Filter>Source Files\Loaders</Filter>
     </ClCompile>
-    <ClCompile Include="RenderItemBuilder.cpp">
+    <ClCompile Include="Loaders\RenderItemBuilder.cpp">
       <Filter>Source Files\Loaders</Filter>
     </ClCompile>
-    <ClCompile Include="DescriptorHeapBuilder.cpp">
+    <ClCompile Include="Loaders\DescriptorHeapBuilder.cpp">
       <Filter>Source Files\Loaders</Filter>
     </ClCompile>
-    <ClCompile Include="ShadowMap.cpp">
+    <ClCompile Include="Models\ShadowMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShadersLoader.cpp">
+    <ClCompile Include="Loaders\ShadersLoader.cpp">
       <Filter>Source Files\Loaders</Filter>
     </ClCompile>
-    <ClCompile Include="SSAmbientOclusion.cpp">
+    <ClCompile Include="Models\SSAmbientOclusion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Samplers.cpp">
+    <ClCompile Include="DirectXController\Samplers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utilities\DirectXUtilities.cpp">
+    <ClCompile Include="Utilities\DirectXUtilities.cpp">
       <Filter>Source Files\Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="SHUtils.cpp">
+    <ClCompile Include="Utilities\SHUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Utilities\BaseApp.h">
+    <ClInclude Include="DirectXController\BaseApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utilities\GameTimer.h">
+    <ClInclude Include="Utilities\GameTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utilities\MathHelper.h">
+    <ClInclude Include="Utilities\MathHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DirectXing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RenderItem.h">
+    <ClInclude Include="DirectXController\RenderItem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utilities\GeometryGenerator.h">
+    <ClInclude Include="Models\GeometryGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Vertex.h">
+    <ClInclude Include="DirectXController\DirVertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utilities\Camera.h">
+    <ClInclude Include="Models\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utilities\Material.h">
+    <ClInclude Include="DirectXController\Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Utilities\Submesh.h">
@@ -146,58 +137,58 @@
     <ClInclude Include="..\Utilities\Samplers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextureLoader.h">
+    <ClInclude Include="Loaders\TextureLoader.h">
       <Filter>Header Files\LoadersAndBuilders</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utilities\DDSTextureLoader.h">
+    <ClInclude Include="ext\DDSTextureLoader.h">
       <Filter>Header Files\LoadersAndBuilders</Filter>
     </ClInclude>
-    <ClInclude Include="ObjectConstants.h">
+    <ClInclude Include="DirectXController\Constants\ObjectConstants.h">
       <Filter>Header Files\Constants</Filter>
     </ClInclude>
-    <ClInclude Include="PassConstants.h">
+    <ClInclude Include="DirectXController\Constants\PassConstants.h">
       <Filter>Header Files\Constants</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utilities\MaterialConstants.h">
+    <ClInclude Include="DirectXController\Constants\MaterialConstants.h">
       <Filter>Header Files\Constants</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utilities\RenderLayer.h">
+    <ClInclude Include="DirectXController\RenderLayer.h">
       <Filter>Header Files\Constants</Filter>
     </ClInclude>
-    <ClInclude Include="FrameResource.h">
+    <ClInclude Include="DirectXController\FrameResource.h">
       <Filter>Header Files\Constants</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialLoader.h">
+    <ClInclude Include="Loaders\MaterialLoader.h">
       <Filter>Header Files\LoadersAndBuilders</Filter>
     </ClInclude>
-    <ClInclude Include="GeometryLoader.h">
+    <ClInclude Include="Loaders\GeometryLoader.h">
       <Filter>Header Files\LoadersAndBuilders</Filter>
     </ClInclude>
-    <ClInclude Include="ConfigConstants.h">
+    <ClInclude Include="DirectXController\Constants\ConfigConstants.h">
       <Filter>Header Files\Constants</Filter>
     </ClInclude>
-    <ClInclude Include="RenderItemBuilder.h">
+    <ClInclude Include="Loaders\RenderItemBuilder.h">
       <Filter>Header Files\LoadersAndBuilders</Filter>
     </ClInclude>
-    <ClInclude Include="ShadowMap.h">
+    <ClInclude Include="Models\ShadowMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShadersLoader.h">
+    <ClInclude Include="Loaders\ShadersLoader.h">
       <Filter>Header Files\LoadersAndBuilders</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utilities\UploadBuffer.h">
+    <ClInclude Include="DirectXController\UploadBuffer.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="SSAmbientOclusion.h">
+    <ClInclude Include="Models\SSAmbientOclusion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AmbientOcclusionConstants.h">
+    <ClInclude Include="DirectXController\Constants\AmbientOcclusionConstants.h">
       <Filter>Header Files\Constants</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utilities\DirectXUtilities.h">
+    <ClInclude Include="Utilities\DirectXUtilities.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="SHUtils.h">
+    <ClInclude Include="Utilities\SHUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

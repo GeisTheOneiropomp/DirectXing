@@ -5,8 +5,8 @@
 #include <crtdbg.h>
 #endif
 
-#include "DirectXUtilities.h"
-#include "GameTimer.h"
+#include "../Utilities/DirectXUtilities.h"
+#include "../Utilities/GameTimer.h"
 
 // Link necessary d3d12 libraries.
 #pragma comment(lib,"d3dcompiler.lib")

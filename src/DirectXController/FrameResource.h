@@ -2,15 +2,14 @@
 
 #include "../Utilities/DirectXUtilities.h"
 #include "../Utilities/MathHelper.h"
-#include "../Utilities/UploadBuffer.h"
-#include "ObjectConstants.h"
-#include "PassConstants.h"
-#include "Vertex.h"
-#include "AmbientOcclusionConstants.h"
+#include "DirVertex.h"
+#include "UploadBuffer.h"
+#include "Constants/ObjectConstants.h"
+#include "Constants/PassConstants.h"
+#include "Constants/AmbientOcclusionConstants.h"
 
 
-// Stores the resources needed for the CPU to build the command lists
-// for a frame.  
+
 struct FrameResource
 {
 public:

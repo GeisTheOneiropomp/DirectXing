@@ -1,4 +1,4 @@
-#include "../Utilities/Samplers.h"
+#include "Samplers.h"
 
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> Samplers::GetStaticSamplers() {
 	return { GetPointWrapSampler(),

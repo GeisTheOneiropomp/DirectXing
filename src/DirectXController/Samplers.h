@@ -1,5 +1,5 @@
 #pragma once
-#include "d3dx12.h"
+#include "../ext/d3dx12.h"
 #include <array>
  
 class Samplers {

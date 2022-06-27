@@ -1,6 +1,7 @@
-#include "Vertex.h"
 #include "GeometryLoader.h"
-#include "../Utilities/GeometryGenerator.h"
+
+#include "../DirectXController/DirVertex.h"
+#include "../Models/GeometryGenerator.h"
 #include "../Utilities/DirectXUtilities.h"
 void GeometryLoader::Load(Microsoft::WRL::ComPtr<ID3D12Device> d3dDevice,
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList, 

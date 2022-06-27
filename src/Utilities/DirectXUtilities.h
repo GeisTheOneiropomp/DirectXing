@@ -19,15 +19,15 @@
 #include <fstream>
 #include <sstream>
 #include <cassert>
-#include "d3dx12.h"
-#include "DDSTextureLoader.h"
+#include "../ext/d3dx12.h"
+#include "../ext/DDSTextureLoader.h"
 #include "MathHelper.h"
-#include "Material.h"
-#include "Texture.h"
-#include "MaterialConstants.h"
-#include "Light.h"
-#include "MeshGeometry.h"
-#include "Submesh.h"
+#include "../DirectXController/Material.h"
+#include "../DirectXController/Texture.h"
+#include "../DirectXController/Constants/MaterialConstants.h"
+#include "../DirectXController/Light.h"
+#include "../DirectXController/MeshGeometry.h"
+#include "../DirectXController/Submesh.h"
 
 inline void d3dSetDebugName(IDXGIObject* obj, const char* name)
 {

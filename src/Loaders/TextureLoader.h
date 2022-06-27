@@ -1,10 +1,12 @@
 #pragma once
-#include "../Utilities/Texture.h"
+
 #include <vector>
 #include <string>
 #include <tuple>
 #include <unordered_map>
 #include <memory>
+
+#include "../DirectXController/Texture.h"
 
 class TextureLoader
 {

@@ -2,7 +2,7 @@
 #include <string>
 #include <DirectXMath.h>
 #include "../Utilities/MathHelper.h"
-#include "../src/ConfigConstants.h"
+#include "Constants/ConfigConstants.h"
 class Material
 {
 public:

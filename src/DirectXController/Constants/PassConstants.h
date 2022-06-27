@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../Utilities/MathHelper.h"
-
 struct PassConstants
 {
     DirectX::XMFLOAT4X4 View = MathHelper::Identity4x4();

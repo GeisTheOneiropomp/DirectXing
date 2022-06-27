@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DirectXUtilities.h"
+#include "../Utilities/DirectXUtilities.h"
 
 template<typename T>
 class UploadBuffer

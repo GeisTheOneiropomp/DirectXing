@@ -4,7 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
-#include "../Utilities/Material.h"
+#include "../DirectXController/Material.h"
 
 class MaterialLoader
 {
