@@ -231,6 +231,23 @@ void SSAmbientOcclusion::ComputeSsao(
     BlurAmbientMap(cmdList, currFrame, blurCount);
 }
 
+void SSAmbientOcclusion::WashSSAO(
+    ID3D12GraphicsCommandList* cmdList,
+    FrameResource* currFrame)
+{
+    cmdList->RSSetViewports(1, &mViewport);
+    cmdList->RSSetScissorRects(1, &mScissorRect);
+
+    cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mAmbientMap0.Get(),
+        D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+    float clearValue[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    cmdList->ClearRenderTargetView(mhAmbientMap0CpuRtv, clearValue, 0, nullptr);
+
+    cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mAmbientMap0.Get(),
+        D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+}
+
 void SSAmbientOcclusion::BlurAmbientMap(ID3D12GraphicsCommandList* cmdList, FrameResource* currFrame, int blurCount)
 {
     cmdList->SetPipelineState(mBlurPso);

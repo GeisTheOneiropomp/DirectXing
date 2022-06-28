@@ -143,6 +143,7 @@
     <ClCompile Include="DirectXController\GraphicsController\DrawNormalsAndDepthCommands.cpp" />
     <ClCompile Include="DirectXController\GraphicsController\DrawRenderItemsInstructions.cpp" />
     <ClCompile Include="DirectXController\GraphicsController\DrawScenetoShadowMapInstructions.cpp" />
+    <ClCompile Include="DirectXController\GraphicsController\DrawSSAOInstructions.cpp" />
     <ClCompile Include="DirectXController\GraphicsController\ExecuteInitializeCommands.cpp" />
     <ClCompile Include="DirectXController\PlayerController\PlayerController.cpp" />
     <ClCompile Include="DirectXController\UpdateController\RenderBeforeUpdate.cpp" />

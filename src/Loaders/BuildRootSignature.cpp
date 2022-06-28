@@ -3,7 +3,6 @@
 void DirectXing::BuildRootSignature()
 {
 
-
     CD3DX12_ROOT_PARAMETER slotRootParameter[5];
 
     slotRootParameter[0].InitAsConstantBufferView(0);

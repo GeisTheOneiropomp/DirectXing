@@ -44,30 +44,18 @@ public:
 
     void SetPSOs(ID3D12PipelineState* ssaoPso, ID3D12PipelineState* ssaoBlurPso);
 
-    ///<summary>
-    /// Call when the backbuffer is resized.  
-    ///</summary>
     void OnResize(UINT newWidth, UINT newHeight);
 
-    ///<summary>
-    /// Changes the render target to the Ambient render target and draws a fullscreen
-    /// quad to kick off the pixel shader to compute the AmbientMap.  We still keep the
-    /// main depth buffer binded to the pipeline, but depth buffer read/writes
-    /// are disabled, as we do not need the depth buffer computing the Ambient map.
-    ///</summary>
     void ComputeSsao(
         ID3D12GraphicsCommandList* cmdList,
         FrameResource* currFrame,
         int blurCount);
 
-
+    void WashSSAO(
+        ID3D12GraphicsCommandList* cmdList,
+        FrameResource* currFrame);
 private:
 
-    ///<summary>
-    /// Blurs the ambient map to smooth out the noise caused by only taking a
-    /// few random samples per pixel.  We use an edge preserving blur so that 
-    /// we do not blur across discontinuities--we want edges to remain edges.
-    ///</summary>
     void BlurAmbientMap(ID3D12GraphicsCommandList* cmdList, FrameResource* currFrame, int blurCount);
     void BlurAmbientMap(ID3D12GraphicsCommandList* cmdList, bool horzBlur);
 
@@ -101,7 +89,6 @@ private:
     CD3DX12_CPU_DESCRIPTOR_HANDLE mhRandomVectorMapCpuSrv;
     CD3DX12_GPU_DESCRIPTOR_HANDLE mhRandomVectorMapGpuSrv;
 
-    // Need two for ping-ponging during blur.
     CD3DX12_CPU_DESCRIPTOR_HANDLE mhAmbientMap0CpuSrv;
     CD3DX12_GPU_DESCRIPTOR_HANDLE mhAmbientMap0GpuSrv;
     CD3DX12_CPU_DESCRIPTOR_HANDLE mhAmbientMap0CpuRtv;

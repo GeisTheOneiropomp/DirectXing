@@ -110,8 +110,7 @@ void DirectXing::Draw(const GameTimer& gt)
     DrawNormalsAndDepthCommands();
 
     // SSAO
-    mCommandList->SetGraphicsRootSignature(mSsaoRootSignature.Get());
-    mSSAmbientOcclusion->ComputeSsao(mCommandList.Get(), mCurrFrameResource, 3);
+    DrawSSAOInstructions();
 
     mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
         D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
@@ -188,10 +187,3 @@ void DirectXing::CreateRtvAndDsvDescriptorHeaps()
     ThrowIfFailed(md3dDevice->CreateDescriptorHeap(
         &dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())));
 }
-
-
-
-
-
-
-

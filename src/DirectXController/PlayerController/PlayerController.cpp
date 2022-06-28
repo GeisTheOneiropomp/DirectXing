@@ -32,19 +32,17 @@ void DirectXing::OnMouseMove(WPARAM btnState, int x, int y)
 void DirectXing::OnKeyboardInput(const GameTimer& gt)
 {
     const float dt = gt.DeltaTime();
-    if (GetAsyncKeyState(VK_F1) & 0x8000)
-        mIsWireframe = !mIsWireframe;
+    if (GetAsyncKeyState('1') & 0x8000)
+        mUseShadowMap = !mUseShadowMap;
+    if (GetAsyncKeyState('2') & 0x8000)
+        mUseSSAO = !mUseSSAO;
     if (GetAsyncKeyState('W') & 0x8000)
         mCamera.Walk(10.0f * dt);
-
     if (GetAsyncKeyState('S') & 0x8000)
         mCamera.Walk(-10.0f * dt);
-
     if (GetAsyncKeyState('A') & 0x8000)
         mCamera.Strafe(-10.0f * dt);
-
     if (GetAsyncKeyState('D') & 0x8000)
         mCamera.Strafe(10.0f * dt);
-
     mCamera.UpdateViewMatrix();
 }

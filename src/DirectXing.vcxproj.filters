@@ -177,6 +177,9 @@
     <ClCompile Include="Loaders\BuildShadowMap.cpp">
       <Filter>Source Files\Loaders</Filter>
     </ClCompile>
+    <ClCompile Include="DirectXController\GraphicsController\DrawSSAOInstructions.cpp">
+      <Filter>Source Files\DirectXController\GraphicsController</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectXing.h">

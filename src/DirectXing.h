@@ -68,6 +68,7 @@ private:
     void DrawSceneToShadowMapInstructions();
     void BuildSsaoRootSignature();
     void DrawNormalsAndDepthCommands();
+    void DrawSSAOInstructions();
 
     void UpdateLights(const GameTimer& gt);
     void UpdateObjectCBs(const GameTimer& gt);
@@ -116,7 +117,8 @@ private:
     float mRadius = 15.0f;
 
     POINT mLastMousePos;
-    bool mIsWireframe = false;
+    bool mUseShadowMap = true;
+    bool mUseSSAO = false;
 
     Camera mCamera;
     
