@@ -13,7 +13,7 @@ void DirectXing::BuildRootSignature()
     texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 0, 0);
 
     CD3DX12_DESCRIPTOR_RANGE texTable1;
-    texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 3, 0);
+    texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 8, 3, 0);
 
     slotRootParameter[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
     slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);

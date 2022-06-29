@@ -5,12 +5,11 @@
 class Texture
 {
 
-private:
+public:
 
     Microsoft::WRL::ComPtr<ID3D12Resource> Resource = nullptr;
     Microsoft::WRL::ComPtr<ID3D12Resource> UploadHeap = nullptr;
 
-public:
     Texture(std::string Name, std::wstring Filename);
     Microsoft::WRL::ComPtr<ID3D12Resource> &GetResource();
     Microsoft::WRL::ComPtr<ID3D12Resource> &GetUploadHeap();

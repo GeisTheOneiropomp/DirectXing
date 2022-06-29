@@ -49,12 +49,15 @@
     <Filter Include="Source Files\DirectXController\UpdateController">
       <UniqueIdentifier>{f495b40b-35fe-4e1b-b118-61e2ce161eaf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader Files">
+      <UniqueIdentifier>{a10e8103-9aff-46bb-a95f-26b7a14dc02c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectXing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Loaders\TextureLoader.cpp">
+    <ClCompile Include="Loaders\LoadTextures.cpp">
       <Filter>Source Files\Loaders</Filter>
     </ClCompile>
     <ClCompile Include="ext\DDSTextureLoader.cpp">
@@ -72,7 +75,7 @@
     <ClCompile Include="Loaders\BuildRenderItems.cpp">
       <Filter>Source Files\Loaders</Filter>
     </ClCompile>
-    <ClCompile Include="Loaders\DescriptorHeapBuilder.cpp">
+    <ClCompile Include="Loaders\BuildDescriptorHeaps.cpp">
       <Filter>Source Files\Loaders</Filter>
     </ClCompile>
     <ClCompile Include="Loaders\BuildShadersAndInputLayout.cpp">
@@ -263,5 +266,67 @@
     <ClInclude Include="DirectXController\DirVertex.h">
       <Filter>Header Files\DirectXController</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Shaders\SsaoBlur.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\BlinnPhong.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Common.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\ComputeDirectionalLight.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\ComputeLighting.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\ComputePointLight.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\ComputeSpotLight.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Default.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\DrawNormals.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\Light.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\LightAttenuation.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\Material.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\NormalSampleToWorldSpace.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\SchlickApprox.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\ShaderUtilityConstants.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\ShadowDebug.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\ShadowFactor.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Shadows.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Skybox.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Ssao.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

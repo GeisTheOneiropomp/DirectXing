@@ -46,7 +46,7 @@ bool DirectXing::Initialize()
     LoadTextures();
     BuildRootSignature();
     BuildSsaoRootSignature();
-    BuildDescriptorHeap();
+    BuildDescriptorHeaps();
     BuildShadersAndInputLayout();
     BuildShapeGeometry();
     BuildMaterials();
@@ -104,8 +104,9 @@ void DirectXing::Draw(const GameTimer& gt)
     mCommandList->SetGraphicsRootDescriptorTable(4, mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart()); // All textures
    
     // Shadow Pass
-    DrawSceneToShadowMapInstructions();
-
+    if (mUseShadowMap) {
+        DrawSceneToShadowMapInstructions();
+    }
     // Depth pass
     DrawNormalsAndDepthCommands();
 
@@ -118,7 +119,6 @@ void DirectXing::Draw(const GameTimer& gt)
     // Main rendering pass
     mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
 
-    // Bind all the materials used in this scene.  
     matBuffer = mCurrFrameResource->MaterialCB->Resource();
     mCommandList->SetGraphicsRootShaderResourceView(2, matBuffer->GetGPUVirtualAddress());
 
@@ -133,14 +133,8 @@ void DirectXing::Draw(const GameTimer& gt)
     mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
     mCommandList->SetGraphicsRootDescriptorTable(4, mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 
-
     auto passCB = mCurrFrameResource->PassCB->Resource();
     mCommandList->SetGraphicsRootConstantBufferView(1, passCB->GetGPUVirtualAddress());
-
-    // Bind the sky cube map.  For our demos, we just use one "world" cube map representing the environment
-    // from far away, so all objects will use the same cube map and we only need to set it once per-frame.  
-    // If we wanted to use "local" cube maps, we would have to change them per-object, or dynamically
-    // index into an array of cube maps.
 
     CD3DX12_GPU_DESCRIPTOR_HANDLE skyTexDescriptor(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
     skyTexDescriptor.Offset(mSkyTexHeapIndex, mCbvSrvUavDescriptorSize);

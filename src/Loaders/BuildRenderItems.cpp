@@ -20,7 +20,7 @@ void DirectXing::BuildRenderItems()
     XMStoreFloat4x4(&boxRitem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 0.5f, 0.0f));
     XMStoreFloat4x4(&boxRitem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
     boxRitem->ObjCBIndex = 1;
-    boxRitem->Mat = mMaterials["bricks0"].get();
+    boxRitem->Mat = mMaterials["mirror0"].get();
     boxRitem->Geo = mGeometries["shapeGeo"].get();
     boxRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     boxRitem->IndexCount = boxRitem->Geo->DrawArgs["box"].IndexCount;
@@ -33,7 +33,7 @@ void DirectXing::BuildRenderItems()
     gridRitem->World = MathHelper::Identity4x4();
     XMStoreFloat4x4(&gridRitem->TexTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
     gridRitem->ObjCBIndex = 2;
-    gridRitem->Mat = mMaterials["mirror0"].get();
+    gridRitem->Mat = mMaterials["bricks0"].get();
     gridRitem->Geo = mGeometries["shapeGeo"].get();
     gridRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     gridRitem->IndexCount = gridRitem->Geo->DrawArgs["grid"].IndexCount;
@@ -60,7 +60,7 @@ void DirectXing::BuildRenderItems()
         XMStoreFloat4x4(&leftCylRitem->World, rightCylWorld);
         XMStoreFloat4x4(&leftCylRitem->TexTransform, brickTexTransform);
         leftCylRitem->ObjCBIndex = objCBIndex++;
-        leftCylRitem->Mat = mMaterials["bricks0"].get();
+        leftCylRitem->Mat = mMaterials["tile0"].get();
         leftCylRitem->Geo = mGeometries["shapeGeo"].get();
         leftCylRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
         leftCylRitem->IndexCount = leftCylRitem->Geo->DrawArgs["cylinder"].IndexCount;
@@ -70,7 +70,7 @@ void DirectXing::BuildRenderItems()
         XMStoreFloat4x4(&rightCylRitem->World, leftCylWorld);
         XMStoreFloat4x4(&rightCylRitem->TexTransform, brickTexTransform);
         rightCylRitem->ObjCBIndex = objCBIndex++;
-        rightCylRitem->Mat = mMaterials["bricks0"].get();
+        rightCylRitem->Mat = mMaterials["tile0"].get();
         rightCylRitem->Geo = mGeometries["shapeGeo"].get();
         rightCylRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
         rightCylRitem->IndexCount = rightCylRitem->Geo->DrawArgs["cylinder"].IndexCount;

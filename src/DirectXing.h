@@ -54,7 +54,7 @@ private:
 
     void BuildRenderItems();
     void BuildFrameResources();
-    void BuildDescriptorHeap();
+    void BuildDescriptorHeaps();
     void DrawRenderItemsInstructions(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
     void ExecuteInitializeCommands();
 

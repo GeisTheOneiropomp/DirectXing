@@ -1,62 +1,41 @@
 #include "../DirectXing.h"
 #include "../Utilities/DirectXUtilities.h"
 
-void DirectXing::BuildDescriptorHeap()
+void DirectXing::BuildDescriptorHeaps()
 {
 
     D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-    srvHeapDesc.NumDescriptors = 18;
+    srvHeapDesc.NumDescriptors = 16;
     srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)));
 
-    auto brickDiffuseTex = mTextures["bricksDiffuseMap"]->GetResource();
-    auto brickNormalTex = mTextures["bricksNormalMap"]->GetResource();
-    auto tileDiffuseMap = mTextures["tileDiffuseMap"]->GetResource();
-    auto tileNormalMap = mTextures["tileNormalMap"]->GetResource();
-    auto defaultDiffuseMap = mTextures["defaultDiffuseMap"]->GetResource();
-    auto defaultNormalMap = mTextures["defaultNormalMap"]->GetResource();
-    auto skyTex = mTextures["skyCubeMap"]->GetResource();
+    auto skyTex = mTextures["skyCubeMap"]->Resource;
+
+    std::vector<ComPtr<ID3D12Resource>> tex2DList =
+    {
+        mTextures["bricksDiffuseMap"]->Resource,
+        mTextures["bricksNormalMap"]->Resource,
+        mTextures["tileDiffuseMap"]->Resource,
+        mTextures["tileNormalMap"]->Resource,
+        mTextures["defaultDiffuseMap"]->Resource,
+        mTextures["defaultNormalMap"]->Resource
+    };
 
     CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
-
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MostDetailedMip = 0;
     srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-    srvDesc.Format = brickDiffuseTex->GetDesc().Format;
-    srvDesc.Texture2D.MipLevels = brickDiffuseTex->GetDesc().MipLevels;
-    md3dDevice->CreateShaderResourceView(brickDiffuseTex.Get(), &srvDesc, hDescriptor);
-    hDescriptor.Offset(1, mCbvSrvUavDescriptorSize);
-
-    srvDesc.Format = brickNormalTex->GetDesc().Format;
-    srvDesc.Texture2D.MipLevels = brickNormalTex->GetDesc().MipLevels;
-    md3dDevice->CreateShaderResourceView(brickNormalTex.Get(), &srvDesc, hDescriptor);
-    hDescriptor.Offset(1, mCbvSrvUavDescriptorSize);
-
-    srvDesc.Format = tileDiffuseMap->GetDesc().Format;
-    srvDesc.Texture2D.MipLevels = tileDiffuseMap->GetDesc().MipLevels;
-    md3dDevice->CreateShaderResourceView(tileDiffuseMap.Get(), &srvDesc, hDescriptor);
-    hDescriptor.Offset(1, mCbvSrvUavDescriptorSize);
-
-    srvDesc.Format = tileNormalMap->GetDesc().Format;
-    srvDesc.Texture2D.MipLevels = tileNormalMap->GetDesc().MipLevels;
-    md3dDevice->CreateShaderResourceView(tileNormalMap.Get(), &srvDesc, hDescriptor);
-    hDescriptor.Offset(1, mCbvSrvUavDescriptorSize);
-
-    srvDesc.Format = defaultDiffuseMap->GetDesc().Format;
-    srvDesc.Texture2D.MipLevels = defaultDiffuseMap->GetDesc().MipLevels;
-    md3dDevice->CreateShaderResourceView(defaultDiffuseMap.Get(), &srvDesc, hDescriptor);
-    hDescriptor.Offset(1, mCbvSrvUavDescriptorSize);
-
-    srvDesc.Format = defaultNormalMap->GetDesc().Format;
-    srvDesc.Texture2D.MipLevels = defaultNormalMap->GetDesc().MipLevels;
-    md3dDevice->CreateShaderResourceView(defaultNormalMap.Get(), &srvDesc, hDescriptor);
-    hDescriptor.Offset(1, mCbvSrvUavDescriptorSize);
-
-    // next descriptor
+    for (UINT i = 0; i < (UINT)tex2DList.size(); ++i)
+    {
+        srvDesc.Format = tex2DList[i]->GetDesc().Format;
+        srvDesc.Texture2D.MipLevels = tex2DList[i]->GetDesc().MipLevels;
+        md3dDevice->CreateShaderResourceView(tex2DList[i].Get(), &srvDesc, hDescriptor);
+        hDescriptor.Offset(1, mCbvSrvUavDescriptorSize);
+    }
 
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
     srvDesc.TextureCube.MostDetailedMip = 0;
@@ -66,7 +45,7 @@ void DirectXing::BuildDescriptorHeap()
     md3dDevice->CreateShaderResourceView(skyTex.Get(), &srvDesc, hDescriptor);
 
     //TODO:: Fix magic constant;
-    mSkyTexHeapIndex = 6;
+    mSkyTexHeapIndex = (UINT)tex2DList.size();
     mShadowMapHeapIndex = mSkyTexHeapIndex + 1;
     mSsaoHeapIndexStart = mShadowMapHeapIndex + 1;
     mSsaoAmbientMapIndex = mSsaoHeapIndexStart + 3;
