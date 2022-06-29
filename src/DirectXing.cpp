@@ -103,10 +103,8 @@ void DirectXing::Draw(const GameTimer& gt)
     mCommandList->SetGraphicsRootDescriptorTable(3, mNullSrv); // Skybox
     mCommandList->SetGraphicsRootDescriptorTable(4, mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart()); // All textures
    
-    // Shadow Pass
-    if (mUseShadowMap) {
-        DrawSceneToShadowMapInstructions();
-    }
+    DrawSceneToShadowMapInstructions();
+
     // Depth pass
     DrawNormalsAndDepthCommands();
 

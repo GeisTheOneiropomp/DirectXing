@@ -8,7 +8,7 @@ public:
 
 	float TotalTime()const; // in seconds
 	float DeltaTime()const; // in seconds
-
+	bool CanToggle();
 	void Reset(); // Call before message loop.
 	void Start(); // Call when unpaused.
 	void Stop();  // Call when paused.
@@ -17,7 +17,7 @@ public:
 private:
 	double mSecondsPerCount;
 	double mDeltaTime;
-
+	double mLastToggleTick;
 	__int64 mBaseTime;
 	__int64 mPausedTime;
 	__int64 mStopTime;

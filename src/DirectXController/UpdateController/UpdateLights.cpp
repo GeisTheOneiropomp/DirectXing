@@ -1,7 +1,7 @@
 #include "../../DirectXing.h"
 
 void DirectXing::UpdateLights(const GameTimer& gt) {
-    mLightRotationAngle += 0.1f * gt.DeltaTime();
+    mLightRotationAngle += 0.3f * gt.DeltaTime();
 
     XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
     for (int i = 0; i < 3; ++i)

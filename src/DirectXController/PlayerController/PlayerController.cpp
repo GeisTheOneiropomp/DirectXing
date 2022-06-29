@@ -32,10 +32,16 @@ void DirectXing::OnMouseMove(WPARAM btnState, int x, int y)
 void DirectXing::OnKeyboardInput(const GameTimer& gt)
 {
     const float dt = gt.DeltaTime();
-    if (GetAsyncKeyState('1') & 0x8000)
-        mUseShadowMap = !mUseShadowMap;
-    if (GetAsyncKeyState('2') & 0x8000)
-        mUseSSAO = !mUseSSAO;
+    if (gt.TotalTime() - mLastToggleTime > .2) {
+        if (GetAsyncKeyState('1') & 0x8000) {
+            mUseShadowMap = !mUseShadowMap;
+            mLastToggleTime = gt.TotalTime();
+        }
+        if (GetAsyncKeyState('2') & 0x8000) {
+            mUseSSAO = !mUseSSAO;
+            mLastToggleTime = gt.TotalTime();
+        }
+    }
     if (GetAsyncKeyState('W') & 0x8000)
         mCamera.Walk(10.0f * dt);
     if (GetAsyncKeyState('S') & 0x8000)
