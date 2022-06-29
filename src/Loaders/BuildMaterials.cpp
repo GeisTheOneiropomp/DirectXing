@@ -12,6 +12,15 @@ void DirectXing::BuildMaterials()
     bricks0->FresnelR0 = DirectX::XMFLOAT3::XMFLOAT3(0.1f, 0.1f, 0.1f);
     bricks0->Roughness = 0.3f;
 
+    auto sphericalBricks = std::make_unique<Material>();
+    sphericalBricks->Name = "sphericalBricks";
+    sphericalBricks->MatCBIndex = 1;
+    sphericalBricks->DiffuseSrvHeapIndex = 0;
+    sphericalBricks->NormalSrvHeapIndex = 1;
+    sphericalBricks->DiffuseAlbedo = DirectX::XMFLOAT4::XMFLOAT4(DirectX::Colors::Chartreuse);
+    sphericalBricks->FresnelR0 = DirectX::XMFLOAT3::XMFLOAT3(0.1f, 0.1f, 0.1f);
+    sphericalBricks->Roughness = 0.3f;
+
     auto tile0 = std::make_unique<Material>();
     tile0->Name = "tile0";
     tile0->MatCBIndex = 2;
@@ -43,5 +52,6 @@ void DirectXing::BuildMaterials()
     mMaterials[tile0->Name] = std::move(tile0);
     mMaterials[mirror0->Name] = std::move(mirror0);
     mMaterials[sky->Name] = std::move(sky);
+    mMaterials[sphericalBricks->Name] = std::move(sphericalBricks);
 
 }

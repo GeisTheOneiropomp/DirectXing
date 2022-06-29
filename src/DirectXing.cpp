@@ -139,6 +139,7 @@ void DirectXing::Draw(const GameTimer& gt)
     mCommandList->SetGraphicsRootDescriptorTable(3, skyTexDescriptor);
 
     mCommandList->SetPipelineState(mPSOs["opaque"].Get());
+    DrawAddableRenderItemsInstructions(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Addable]);
     DrawRenderItemsInstructions(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
 
     mCommandList->SetPipelineState(mPSOs["debug"].Get());

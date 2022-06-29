@@ -3,7 +3,6 @@
 void DirectXing::UpdateObjectCBs(const GameTimer& gt)
 {
     auto currObjectCB = mCurrFrameResource->ObjectCB.get();
-    auto size = mAllRitems.size();
     for (auto& e : mAllRitems)
     {
         if (e->NumFramesDirty > 0)

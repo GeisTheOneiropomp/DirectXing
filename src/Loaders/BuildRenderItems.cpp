@@ -108,4 +108,20 @@ void DirectXing::BuildRenderItems()
         mAllRitems.push_back(std::move(rightSphereRitem));
     }
 
+    for (int i = 0; i < 5; ++i)
+    {
+        auto addableBoxItem = std::make_unique<RenderItem>();
+        XMStoreFloat4x4(&addableBoxItem->World, XMMatrixScaling(1.8f, 1.8f, 1.8f) * XMMatrixTranslation(0.0f, 0.5f + (float)((i+1)* 2), 0.0f));
+        XMStoreFloat4x4(&addableBoxItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+        addableBoxItem->ObjCBIndex = objCBIndex++;
+        addableBoxItem->Mat = mMaterials["sphericalBricks"].get();
+        addableBoxItem->Geo = mGeometries["shapeGeo"].get();
+        addableBoxItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+        addableBoxItem->IndexCount = addableBoxItem->Geo->DrawArgs["sphere"].IndexCount;
+        addableBoxItem->StartIndexLocation = addableBoxItem->Geo->DrawArgs["sphere"].StartIndexLocation;
+        addableBoxItem->BaseVertexLocation = addableBoxItem->Geo->DrawArgs["sphere"].BaseVertexLocation;
+        mRitemLayer[(int)RenderLayer::Addable].push_back(addableBoxItem.get());
+        mAllRitems.push_back(std::move(addableBoxItem));
+    }
+
 }

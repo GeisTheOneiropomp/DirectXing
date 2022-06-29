@@ -153,12 +153,15 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DirectXController\GraphicsController\DrawAddableRenderItemsInstructions.cpp" />
     <ClCompile Include="DirectXController\GraphicsController\DrawNormalsAndDepthCommands.cpp" />
     <ClCompile Include="DirectXController\GraphicsController\DrawRenderItemsInstructions.cpp" />
     <ClCompile Include="DirectXController\GraphicsController\DrawScenetoShadowMapInstructions.cpp" />
     <ClCompile Include="DirectXController\GraphicsController\DrawSSAOInstructions.cpp" />
     <ClCompile Include="DirectXController\GraphicsController\ExecuteInitializeCommands.cpp" />
+    <ClCompile Include="DirectXController\PlayerController\AddBox.cpp" />
     <ClCompile Include="DirectXController\PlayerController\PlayerController.cpp" />
+    <ClCompile Include="DirectXController\PlayerController\RemoveBox.cpp" />
     <ClCompile Include="DirectXController\UpdateController\RenderBeforeUpdate.cpp" />
     <ClCompile Include="DirectXController\UpdateController\UpdateLights.cpp" />
     <ClCompile Include="DirectXController\UpdateController\UpdateMainPassCB.cpp" />
@@ -168,6 +171,7 @@
     <ClCompile Include="DirectXController\UpdateController\UpdateShadowTransform.cpp" />
     <ClCompile Include="DirectXController\UpdateController\UpdateSsaoCB.cpp" />
     <ClCompile Include="Loaders\BuildFrameResources.cpp" />
+    <ClCompile Include="Loaders\BuildRenderItems.cpp" />
     <ClCompile Include="Loaders\BuildRootSignature.cpp" />
     <ClCompile Include="Loaders\BuildShadowMap.cpp" />
     <ClCompile Include="Loaders\BuildSSAORootSignature.cpp" />
@@ -189,7 +193,6 @@
     <ClCompile Include="Loaders\BuildShapeGeometry.cpp" />
     <ClCompile Include="Loaders\BuildMaterials.cpp" />
     <ClCompile Include="Loaders\BuildAndSetPSOs.cpp" />
-    <ClCompile Include="Loaders\BuildRenderItems.cpp" />
     <ClCompile Include="DirectXController\Samplers.cpp" />
     <ClCompile Include="Loaders\BuildShadersAndInputLayout.cpp" />
     <ClCompile Include="Models\ShadowMap.cpp" />

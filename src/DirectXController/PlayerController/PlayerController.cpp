@@ -41,6 +41,14 @@ void DirectXing::OnKeyboardInput(const GameTimer& gt)
             mUseSSAO = !mUseSSAO;
             mLastToggleTime = gt.TotalTime();
         }
+        if (GetAsyncKeyState('Q') & 0x8000) {
+            AddBox();
+            mLastToggleTime = gt.TotalTime();
+        }
+        if (GetAsyncKeyState('E') & 0x8000) {
+            RemoveBox();
+            mLastToggleTime = gt.TotalTime();
+        }
     }
     if (GetAsyncKeyState('W') & 0x8000)
         mCamera.Walk(10.0f * dt);

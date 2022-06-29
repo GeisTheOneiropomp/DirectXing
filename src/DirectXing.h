@@ -45,6 +45,8 @@ private:
     virtual void CreateRtvAndDsvDescriptorHeaps()override;
 
     void OnKeyboardInput(const GameTimer& gt);
+    void AddBox();
+    void RemoveBox();
 
     void BuildRootSignature();
     void BuildShadersAndInputLayout();
@@ -56,6 +58,7 @@ private:
     void BuildFrameResources();
     void BuildDescriptorHeaps();
     void DrawRenderItemsInstructions(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
+    void DrawAddableRenderItemsInstructions(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
     void ExecuteInitializeCommands();
 
     void SetBounds();
@@ -116,6 +119,7 @@ private:
     float mPhi = 0.2f * XM_PI;
     float mRadius = 15.0f;
     float mLastToggleTime = 0.0f;
+    int mNumAddableBoxes = 0;
 
     POINT mLastMousePos;
     bool mUseShadowMap = true;

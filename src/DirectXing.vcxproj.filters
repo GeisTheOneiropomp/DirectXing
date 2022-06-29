@@ -72,9 +72,6 @@
     <ClCompile Include="Loaders\BuildAndSetPSOs.cpp">
       <Filter>Source Files\Loaders</Filter>
     </ClCompile>
-    <ClCompile Include="Loaders\BuildRenderItems.cpp">
-      <Filter>Source Files\Loaders</Filter>
-    </ClCompile>
     <ClCompile Include="Loaders\BuildDescriptorHeaps.cpp">
       <Filter>Source Files\Loaders</Filter>
     </ClCompile>
@@ -182,6 +179,18 @@
     </ClCompile>
     <ClCompile Include="DirectXController\GraphicsController\DrawSSAOInstructions.cpp">
       <Filter>Source Files\DirectXController\GraphicsController</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\BuildRenderItems.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\GraphicsController\DrawAddableRenderItemsInstructions.cpp">
+      <Filter>Source Files\DirectXController\GraphicsController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\PlayerController\AddBox.cpp">
+      <Filter>Source Files\DirectXController\PlayerController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\PlayerController\RemoveBox.cpp">
+      <Filter>Source Files\DirectXController\PlayerController</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

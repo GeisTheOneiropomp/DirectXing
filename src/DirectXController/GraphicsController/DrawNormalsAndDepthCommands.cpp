@@ -27,6 +27,7 @@ void DirectXing::DrawNormalsAndDepthCommands()
     mCommandList->SetPipelineState(mPSOs["drawNormals"].Get());
 
     DrawRenderItemsInstructions(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
+    DrawAddableRenderItemsInstructions(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Addable]);
 
     // Change back to GENERIC_READ so we can read the texture in a shader.
     mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(normalMap,
