@@ -6,8 +6,8 @@ void DirectXing::LoadTextures()
 	std::vector<std::tuple<std::string, std::wstring>> texStrings = {
         std::make_tuple("bricksDiffuseMap",L"../Assets/bricks2.dds"),
         std::make_tuple("bricksNormalMap",L"../Assets/bricks2_nmap.dds"),
-        std::make_tuple("tileDiffuseMap",L"../Assets/bricks.dds"),
-        std::make_tuple("tileNormalMap",L"../Assets/bricks_nmap.dds"),
+        std::make_tuple("tileDiffuseMap",L"../Assets/tile.dds"),
+        std::make_tuple("tileNormalMap",L"../Assets/tile_nmap.dds"),
         std::make_tuple("defaultDiffuseMap",L"../Assets/white1x1.dds"),
         std::make_tuple("defaultNormalMap",L"../Assets/default_nmap.dds"),
         std::make_tuple("skyCubeMap", L"../Assets/grasscube1024.dds"),
