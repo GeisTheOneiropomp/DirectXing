@@ -8,7 +8,7 @@ void DirectXing::BuildMaterials()
     bricks0->MatCBIndex = 0;
     bricks0->DiffuseSrvHeapIndex = 0;
     bricks0->NormalSrvHeapIndex = 1;
-    bricks0->DiffuseAlbedo = DirectX::XMFLOAT4::XMFLOAT4(DirectX::Colors::Goldenrod);
+    bricks0->DiffuseAlbedo = DirectX::XMFLOAT4::XMFLOAT4(DirectX::Colors::Aquamarine);
     bricks0->FresnelR0 = DirectX::XMFLOAT3::XMFLOAT3(0.1f, 0.1f, 0.1f);
     bricks0->Roughness = 0.3f;
 
@@ -26,7 +26,7 @@ void DirectXing::BuildMaterials()
     tile0->MatCBIndex = 2;
     tile0->DiffuseSrvHeapIndex = 2;
     tile0->NormalSrvHeapIndex = 3;
-    tile0->DiffuseAlbedo = DirectX::XMFLOAT4::XMFLOAT4(DirectX::Colors::PaleVioletRed);
+    tile0->DiffuseAlbedo = DirectX::XMFLOAT4::XMFLOAT4(DirectX::Colors::LightCyan);
     tile0->FresnelR0 = DirectX::XMFLOAT3::XMFLOAT3(0.2f, 0.2f, 0.2f);
     tile0->Roughness = 0.2f;
 

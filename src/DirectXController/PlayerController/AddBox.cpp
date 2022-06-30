@@ -8,7 +8,7 @@ void DirectXing::AddBox()
 	else {
 		std::vector<RenderItem*>& boxItems = mRitemLayer[(int)RenderLayer::Addable];
 		RenderItem* box = boxItems[mNumAddableBoxes];
-		auto drawDistance = mCamera.GetLook() * 15;
+		auto drawDistance = mCamera.GetLook() * 3;
 		auto positionVector = mCamera.GetPosition();
 		auto x = XMVectorGetX(positionVector + drawDistance);
 		auto y = XMVectorGetY(positionVector + drawDistance);
