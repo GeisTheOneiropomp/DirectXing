@@ -1,0 +1,341 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Loaders">
+      <UniqueIdentifier>{8e882956-3d7e-4ac4-805d-e1a334520186}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utilities">
+      <UniqueIdentifier>{0ae4fb2f-5e50-4e78-99f7-b8cbf9096ebc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utilities">
+      <UniqueIdentifier>{d987b6e4-fac4-484f-b8d7-eb381a015dcd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Models">
+      <UniqueIdentifier>{8f450096-a7a2-4e1e-bdc9-a2e8c93967da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Models">
+      <UniqueIdentifier>{0d1fc58c-e3e9-4074-87b6-e7cb474a3ba1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DirectXController">
+      <UniqueIdentifier>{51e1fae7-b80c-4649-adbd-6bb9e9f59c51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DirectXController">
+      <UniqueIdentifier>{dcd85ae8-cc4a-4b5b-8786-59b065a4343c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DirectXController\Constants">
+      <UniqueIdentifier>{6e76c964-8bf4-4daf-953e-f8cf46e5883e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Loaders">
+      <UniqueIdentifier>{e1f8f203-f6fb-4679-928b-0047bf70de3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DirectXController\GraphicsController">
+      <UniqueIdentifier>{fb1d8bb1-56ce-45a5-892f-18b7271c00ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DirectXController\PlayerController">
+      <UniqueIdentifier>{8a0f29d1-03fc-4665-a958-978aca6e385e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DirectXController\UpdateController">
+      <UniqueIdentifier>{f495b40b-35fe-4e1b-b118-61e2ce161eaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files">
+      <UniqueIdentifier>{a10e8103-9aff-46bb-a95f-26b7a14dc02c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DirectXing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\LoadTextures.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="ext\DDSTextureLoader.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\BuildMaterials.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\BuildShapeGeometry.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\BuildAndSetPSOs.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\BuildDescriptorHeaps.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\BuildShadersAndInputLayout.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\DirectXUtilities.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Models\Camera.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Models\ShadowMap.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Models\SSAmbientOclusion.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Models\GeometryGenerator.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\SHUtils.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\MathHelper.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\GameTimer.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\Samplers.cpp">
+      <Filter>Source Files\DirectXController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\FrameResource.cpp">
+      <Filter>Source Files\DirectXController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\Texture.cpp">
+      <Filter>Source Files\DirectXController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\BaseApp.cpp">
+      <Filter>Source Files\DirectXController</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\SetBounds.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\LoadCamera.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\LoadShadowMap.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\LoadSSAmbientOcclusion.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\BuildRootSignature.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\BuildSSAORootSignature.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\BuildFrameResources.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\GraphicsController\ExecuteInitializeCommands.cpp">
+      <Filter>Source Files\DirectXController\GraphicsController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\PlayerController\PlayerController.cpp">
+      <Filter>Source Files\DirectXController\PlayerController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\UpdateController\UpdateLights.cpp">
+      <Filter>Source Files\DirectXController\UpdateController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\UpdateController\UpdateObjectCBs.cpp">
+      <Filter>Source Files\DirectXController\UpdateController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\UpdateController\UpdateMaterialCBs.cpp">
+      <Filter>Source Files\DirectXController\UpdateController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\UpdateController\UpdateMainPassCB.cpp">
+      <Filter>Source Files\DirectXController\UpdateController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\UpdateController\UpdateShadowPassCB.cpp">
+      <Filter>Source Files\DirectXController\UpdateController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\UpdateController\UpdateShadowTransform.cpp">
+      <Filter>Source Files\DirectXController\UpdateController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\UpdateController\UpdateSsaoCB.cpp">
+      <Filter>Source Files\DirectXController\UpdateController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\UpdateController\RenderBeforeUpdate.cpp">
+      <Filter>Source Files\DirectXController\UpdateController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\GraphicsController\DrawNormalsAndDepthCommands.cpp">
+      <Filter>Source Files\DirectXController\GraphicsController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\GraphicsController\DrawScenetoShadowMapInstructions.cpp">
+      <Filter>Source Files\DirectXController\GraphicsController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\GraphicsController\DrawRenderItemsInstructions.cpp">
+      <Filter>Source Files\DirectXController\GraphicsController</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\BuildShadowMap.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\GraphicsController\DrawSSAOInstructions.cpp">
+      <Filter>Source Files\DirectXController\GraphicsController</Filter>
+    </ClCompile>
+    <ClCompile Include="Loaders\BuildRenderItems.cpp">
+      <Filter>Source Files\Loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\GraphicsController\DrawAddableRenderItemsInstructions.cpp">
+      <Filter>Source Files\DirectXController\GraphicsController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\PlayerController\AddBox.cpp">
+      <Filter>Source Files\DirectXController\PlayerController</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXController\PlayerController\RemoveBox.cpp">
+      <Filter>Source Files\DirectXController\PlayerController</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DirectXing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\DDSTextureLoader.h">
+      <Filter>Header Files\Loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\Constants\ObjectConstants.h">
+      <Filter>Header Files\DirectXController\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\Constants\PassConstants.h">
+      <Filter>Header Files\DirectXController\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\Constants\MaterialConstants.h">
+      <Filter>Header Files\DirectXController\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\RenderLayer.h">
+      <Filter>Header Files\DirectXController\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\FrameResource.h">
+      <Filter>Header Files\DirectXController\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\Constants\ConfigConstants.h">
+      <Filter>Header Files\DirectXController\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\UploadBuffer.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\Constants\AmbientOcclusionConstants.h">
+      <Filter>Header Files\DirectXController\Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\DirectXUtilities.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\Camera.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\GeometryGenerator.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\SSAmbientOclusion.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\ShadowMap.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\GameTimer.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\SHUtils.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\MathHelper.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\RenderItem.h">
+      <Filter>Header Files\DirectXController</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\MeshGeometry.h">
+      <Filter>Header Files\DirectXController</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\Texture.h">
+      <Filter>Header Files\DirectXController</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\Submesh.h">
+      <Filter>Header Files\DirectXController</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\Samplers.h">
+      <Filter>Header Files\DirectXController</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXing\BaseApp.h">
+      <Filter>Header Files\DirectXController</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\Material.h">
+      <Filter>Header Files\DirectXController</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\Light.h">
+      <Filter>Header Files\DirectXController</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXController\DirVertex.h">
+      <Filter>Header Files\DirectXController</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Shaders\SsaoBlur.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\BlinnPhong.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Common.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\ComputeDirectionalLight.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\ComputeLighting.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\ComputePointLight.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\ComputeSpotLight.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Default.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\DrawNormals.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\Light.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\LightAttenuation.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\Material.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\NormalSampleToWorldSpace.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\SchlickApprox.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\ShaderUtilityConstants.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\ShadowDebug.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Utilities\ShadowFactor.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Shadows.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Skybox.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+    <Text Include="Shaders\Ssao.hlsl">
+      <Filter>Shader Files</Filter>
+    </Text>
+  </ItemGroup>
+</Project>
