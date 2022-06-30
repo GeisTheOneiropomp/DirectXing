@@ -1,6 +1,9 @@
 DirectXing: A DirectX 12 Demo
 ====================================================================================================
 
+| ![tex dem][texture]          | 
+|:----------------------------:|
+
 ## Digest
 
 This project implements several computer graphics effects. These include:
