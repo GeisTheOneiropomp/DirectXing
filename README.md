@@ -25,6 +25,12 @@ Because this is a DirectX12 demo, it takes advantage of resource aliasing, trans
 	- Press F1 to toggle shadow mapping on\off.
 	- Press F2 to toggle screen space ambient occlusion on\off.
 
+## Video Demo
+
+Note that in this demo, there are points where shadow mapping and ambient occlusion is toggled on and off.
+
+https://user-images.githubusercontent.com/12409152/176759751-14aee698-cf1a-4544-be7a-3bd645bde414.mp4
+
 ## Image Gallery
 
 ### Basic Lighting and Texturing
