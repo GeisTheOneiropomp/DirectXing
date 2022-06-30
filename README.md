@@ -46,31 +46,37 @@ Because this is a DirectX12 demo, it takes advantage of resource aliasing, trans
 
 | ![shadowmapping dem][shadow] | ![shadowmapping note][shadowNote]      | 
 |:----------------------------:|:---------------------------:|
-| In the demo, the shadows are dynamic and move with the light.       | !Percentage Closer Filtering is used.  |
+| In the demo, the shadows are dynamic and move with the light.       | Percentage Closer Filtering is used.  |
 
 ### Screen space ambient occlusion comparison:
 
+#### Screen space ambient occlusion turned on:
+
 | ![SSAO dem][SSAO]            | ![SSAO note][SSAONote]      | 
 |:----------------------------:|:---------------------------:|
+
+#### Screen space ambient occlusion turned off:
+
 | ![noSSAO dem][noSSAO]        | ![noSSAO note][noSSAONote]  | 
+|:----------------------------:|:---------------------------:|
 
 ## Credits:
 
 The base project of the code is derived from Frank Luna's book on Graphics.
 
-[SSAO]:          OutputGallery/SSAOWithRefined.png
-[SSAONote]:          OutputGallery/SSAOWithNote.png
-[noSSAO]:          OutputGallery/SSAOWithoutRefined.png
-[noSSAONote]:          OutputGallery/SSAOWithoutNote.png
+[SSAO]:          ImageGallery/SSAOWithRefined.png
+[SSAONote]:          ImageGallery/SSAOWithNote.png
+[noSSAO]:          ImageGallery/SSAOWithoutRefined.png
+[noSSAONote]:          ImageGallery/SSAOWithoutNote.png
 
-[shadow]:          OutputGallery/ShadowMappingRefined.png
-[shadowNote]:          OutputGallery/ShadowMappingNote.png
+[shadow]:          ImageGallery/ShadowMappingRefined.png
+[shadowNote]:          ImageGallery/ShadowMappingNote.png
 
-[envMap]:          OutputGallery/EnvironmentMappingRefined.png
-[envMapNote]:          OutputGallery/EnvironmentMappingNote.png
+[envMap]:          ImageGallery/EnvironmentMappingRefined.png
+[envMapNote]:          ImageGallery/EnvironmentMappingNote.png
 
-[normMap]:          OutputGallery/NormalMappingRefined.png
-[normMapNote]:          OutputGallery/NormalMappingNote.png
+[normMap]:          ImageGallery/NormalMappingRefined.png
+[normMapNote]:          ImageGallery/NormalMappingNote.png
 
-[texture]:          OutputGallery/TexturingRefined.png
-[textureNote]:          OutputGallery/TexturingNote.png
+[texture]:          ImageGallery/TexturingRefined.png
+[textureNote]:          ImageGallery/TexturingNote.png
